@@ -119,3 +119,171 @@ def sync_linkedin_candidates(request):
         messages.error(request, "Failed to sync LinkedIn candidates.")
     
     return redirect("linkedin-login")
+
+
+def delete_post(recruitment_obj):
+    """
+    This method is used to delete a LinkedIn post for a recruitment
+    """
+    try:
+        if not recruitment_obj.linkedin_account_id:
+            return True
+            
+        # Get LinkedIn account and access token
+        linkedin_account = LinkedInAccount.objects.get(id=recruitment_obj.linkedin_account_id)
+        access_token = linkedin_account.access_token
+        
+        # If there's a LinkedIn post ID associated with this recruitment, delete it
+        if hasattr(recruitment_obj, 'linkedin_post_id') and recruitment_obj.linkedin_post_id:
+            delete_url = f"https://api.linkedin.com/v2/posts/{recruitment_obj.linkedin_post_id}"
+            headers = {"Authorization": f"Bearer {access_token}"}
+            
+            response = requests.delete(delete_url, headers=headers)
+            return response.status_code == 200
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error deleting LinkedIn post: {str(e)}")
+        return False
+
+
+def post_recruitment_in_linkedin(request, recruitment_obj, linkedin_account_id):
+    """
+    This method is used to post recruitment information to LinkedIn
+    """
+    try:
+        linkedin_account = LinkedInAccount.objects.get(id=linkedin_account_id)
+        access_token = linkedin_account.access_token
+        
+        # Prepare post content
+        post_content = f"""
+        🚀 New Job Opening: {recruitment_obj.job_position}
+        
+        Company: {recruitment_obj.company}
+        Location: {recruitment_obj.job_position.department.company.company if hasattr(recruitment_obj.job_position, 'department') else 'Not specified'}
+        
+        We're looking for talented individuals to join our team!
+        
+        #hiring #jobs #career #opportunity
+        """
+        
+        # LinkedIn API endpoint for creating posts
+        post_url = "https://api.linkedin.com/v2/posts"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        
+        post_data = {
+            "author": f"urn:li:person:{linkedin_account.linkedin_id}",
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": post_content
+                    },
+                    "shareMediaCategory": "NONE"
+                }
+            },
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+        }
+        
+        response = requests.post(post_url, headers=headers, json=post_data)
+        
+        if response.status_code == 201:
+            post_id = response.json().get("id")
+            # Store the post ID with the recruitment object if needed
+            messages.success(request, "Job posted to LinkedIn successfully!")
+            return True
+        else:
+            messages.error(request, "Failed to post job to LinkedIn.")
+            return False
+            
+    except LinkedInAccount.DoesNotExist:
+        messages.error(request, "LinkedIn account not found.")
+        return False
+    except Exception as e:
+        logger.error(f"Error posting to LinkedIn: {str(e)}")
+        messages.error(request, "An error occurred while posting to LinkedIn.")
+        return False
+
+
+def delete_linkedin_account(request, pk):
+    """
+    This method is used to delete a LinkedIn account
+    """
+    try:
+        linkedin_account = LinkedInAccount.objects.get(id=pk)
+        linkedin_account.delete()
+        messages.success(request, "LinkedIn account deleted successfully!")
+    except LinkedInAccount.DoesNotExist:
+        messages.error(request, "LinkedIn account not found.")
+    except Exception as e:
+        logger.error(f"Error deleting LinkedIn account: {str(e)}")
+        messages.error(request, "An error occurred while deleting LinkedIn account.")
+    
+    return redirect("linkedin-login")
+
+
+def update_isactive_linkedin(request, obj_id):
+    """
+    This method is used to update the active status of a LinkedIn account
+    """
+    try:
+        linkedin_account = LinkedInAccount.objects.get(id=obj_id)
+        linkedin_account.is_active = not linkedin_account.is_active
+        linkedin_account.save()
+        
+        status = "activated" if linkedin_account.is_active else "deactivated"
+        messages.success(request, f"LinkedIn account {status} successfully!")
+    except LinkedInAccount.DoesNotExist:
+        messages.error(request, "LinkedIn account not found.")
+    except Exception as e:
+        logger.error(f"Error updating LinkedIn account status: {str(e)}")
+        messages.error(request, "An error occurred while updating LinkedIn account.")
+    
+    return redirect("linkedin-login")
+
+
+def check_linkedin(request):
+    """
+    This method is used to check LinkedIn integration status
+    """
+    linkedin_accounts = LinkedInAccount.objects.all()
+    context = {
+        "linkedin_accounts": linkedin_accounts,
+        "has_linkedin_config": bool(
+            os.environ.get("LINKEDIN_CLIENT_ID") and 
+            os.environ.get("LINKEDIN_CLIENT_SECRET")
+        )
+    }
+    return render(request, "recruitment/linkedin/check_linkedin.html", context)
+
+
+def validate_linkedin_token(request, pk):
+    """
+    This method is used to validate LinkedIn access token
+    """
+    try:
+        linkedin_account = LinkedInAccount.objects.get(id=pk)
+        access_token = linkedin_account.access_token
+        
+        # Test the token by making a simple API call
+        profile_url = "https://api.linkedin.com/v2/people/~"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(profile_url, headers=headers)
+        
+        if response.status_code == 200:
+            messages.success(request, "LinkedIn token is valid!")
+        else:
+            messages.error(request, "LinkedIn token is invalid or expired.")
+            
+    except LinkedInAccount.DoesNotExist:
+        messages.error(request, "LinkedIn account not found.")
+    except Exception as e:
+        logger.error(f"Error validating LinkedIn token: {str(e)}")
+        messages.error(request, "An error occurred while validating LinkedIn token.")
+    
+    return redirect("linkedin-login")
