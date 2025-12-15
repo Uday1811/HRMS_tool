@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+{% load static i18n %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>{% trans "Holiday Calendar" %}</h3>
+        <a href="{% url 'leaves-dashboard' %}" class="btn btn-secondary">{% trans "Back to Dashboard" %}</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Holiday Name" %}</th>
+                            <th>{% trans "Start Date" %}</th>
+                            <th>{% trans "End Date" %}</th>
+                            <th>{% trans "Day" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for holiday in holidays %}
+                        <tr>
+                            <td>{{ holiday.name }}</td>
+                            <td>{{ holiday.start_date }}</td>
+                            <td>{{ holiday.end_date|default:"-" }}</td>
+                            <td>{{ holiday.start_date|date:"l" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">{% trans "No upcoming holidays found." %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

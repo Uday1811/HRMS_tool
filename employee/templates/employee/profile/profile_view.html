@@ -1,0 +1,52 @@
+{% extends 'index.html' %}
+{% load i18n static basefilters horillafilters accessibility_filters %}
+{% block content %}
+
+<!-- Load Premium CSS -->
+<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}">
+
+<!-- Main Wrapper -->
+<div class="dashboard-page" style="padding: 2rem;">
+
+    <!-- Profile Header -->
+    <div class="dashboard-header" style="justify-content: flex-start; gap: 2rem;">
+        <img src="{{employee.get_avatar}}" alt="Profile Photo" class="avatar">
+        <div class="info">
+            <h2>{{employee.get_full_name}}</h2>
+            <p>{{employee.job_position_id|default:"N/A"}} – {{employee.employee_work_info.department_id|default:"N/A"}}
+            </p>
+            <p style="opacity: 0.7; font-size: 0.9em;">{{employee.badge_id|default:"Employee ID: N/A"}} |
+                {{employee.employee_work_info.email|default:""}}</p>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="dashboard-grid">
+
+        <!-- Basic Details Card -->
+        <div class="dashboard-card">
+            <h3>Basic Personal Details</h3>
+            <p><strong>Date of Birth:</strong> {{employee.dob|date:"F d, Y"|default:"-"}}</p>
+            <p><strong>Gender:</strong> {{employee.gender|default:"-"}}</p>
+            <p><strong>Phone:</strong> {{employee.phone|default:"-"}}</p>
+            <p><strong>Email:</strong> {{employee.email|default:"-"}}</p>
+            <p><strong>Address:</strong> {{employee.address|default:"-"}}</p>
+            <p><strong>Emergency:</strong> {{employee.emergency_contact|default:"-"}}</p>
+        </div>
+
+        <!-- Work Info Card -->
+        <div class="dashboard-card">
+            <h3>Work Information</h3>
+            <p><strong>Joined:</strong> {{employee.employee_work_info.date_joining|date:"F d, Y"|default:"-"}}</p>
+            <p><strong>Employment Type:</strong> {{employee.employee_work_info.employment_type_id|default:"-"}}</p>
+            <p><strong>Location:</strong> {{employee.employee_work_info.work_type_id|default:"-"}}</p>
+            <p><strong>Shift:</strong> {{employee.employee_work_info.shift_id|default:"-"}}</p>
+            <p><strong>Manager:</strong> {{employee.employee_work_info.reporting_manager_id|default:"-"}}</p>
+            <p><strong>Work Email:</strong> {{employee.employee_work_info.email|default:"-"}}</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

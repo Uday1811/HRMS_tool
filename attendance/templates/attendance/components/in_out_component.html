@@ -1,0 +1,38 @@
+﻿{% load i18n static %}
+<div id="attendance-activity-container" class="active-document">
+    <form id="clock-form-{{ unique|default:'widget' }}" style="margin: 0; display: inline-block;">
+        <input type="hidden" name="latitude" class="geo-lat">
+        <input type="hidden" name="longitude" class="geo-lon">
+        {% if check_in %}
+        <button class="oh-btn oh-btn--success" hx-get="{% url 'attendance-clock-in' %}"
+            hx-target="#attendance-activity-container" hx-swap="outerHTML"
+            hx-include="#clock-form-{{ unique|default:'widget' }} [name='latitude'], #clock-form-{{ unique|default:'widget' }} [name='longitude']"
+            style="display: flex; align-items: center; gap: 5px;">
+            <ion-icon name="enter-outline"></ion-icon>
+            {% trans "Clock In" %}
+        </button>
+        {% else %}
+        <button class="oh-btn oh-btn--danger" hx-get="{% url 'attendance-clock-out' %}"
+            hx-target="#attendance-activity-container" hx-swap="outerHTML"
+            hx-include="#clock-form-{{ unique|default:'widget' }} [name='latitude'], #clock-form-{{ unique|default:'widget' }} [name='longitude']"
+            style="display: flex; align-items: center; gap: 5px;">
+            <ion-icon name="exit-outline"></ion-icon>
+            {% trans "Clock Out" %}
+        </button>
+        {% endif %}
+    </form>
+    <script>
+        (function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lats = document.querySelectorAll('.geo-lat');
+                    const lons = document.querySelectorAll('.geo-lon');
+                    lats.forEach(el => el.value = position.coords.latitude);
+                    lons.forEach(el => el.value = position.coords.longitude);
+                }, function (error) {
+                    console.log("Geolocation error:", error);
+                });
+            }
+        })();
+    </script>
+</div>

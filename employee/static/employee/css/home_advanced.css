@@ -1,0 +1,156 @@
+/*
+  Home Dashboard Advanced CSS
+  -------------------------------------------------
+  Provides a premium, glass‑morphism layout with animated tabs.
+*/
+
+:root {
+    --color-primary-h: 210;
+    --color-primary-s: 70%;
+    --color-primary-l: 55%;
+    --color-primary: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
+    --color-accent-h: 45;
+    --color-accent-s: 80%;
+    --color-accent-l: 55%;
+    --color-accent: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l));
+    --color-bg: hsl(0, 0%, 10%);
+    --color-surface: hsla(0, 0%, 100%, 0.08);
+    --color-text: hsl(0, 0%, 90%);
+    --color-muted: hsl(0, 0%, 45%);
+    --transition-speed: 0.25s;
+    --border-radius: 12px;
+}
+
+body.home-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, hsl(210, 30%, 12%), hsl(210, 20%, 8%));
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+    color: var(--color-text);
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Tab navigation */
+.home-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.2rem 0;
+    background: var(--color-surface);
+    backdrop-filter: blur(8px);
+    border-radius: var(--border-radius);
+    margin: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.home-tabs a {
+    position: relative;
+    text-decoration: none;
+    color: var(--color-muted);
+    font-weight: 500;
+    padding: 0.4rem 0;
+    transition: color var(--transition-speed);
+}
+
+.home-tabs a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition-speed);
+}
+
+.home-tabs a.active,
+.home-tabs a:hover {
+    color: var(--color-primary);
+}
+
+.home-tabs a.active::after {
+    transform: scaleX(1);
+}
+
+/* Section cards */
+.home-section {
+    margin: 2rem auto;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
+}
+
+.home-card {
+    background: var(--color-surface);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    padding: 1.8rem;
+    text-align: center;
+    color: var(--color-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.home-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.home-card h3 {
+    margin-top: 0;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.home-card p {
+    margin: 0.6rem 0 1rem;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+}
+
+.home-card a.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background var(--transition-speed), transform var(--transition-speed);
+}
+
+.home-card a.button:hover {
+    background: hsl(var(--color-primary-h), var(--color-primary-s), calc(var(--color-primary-l) + 5%));
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .home-tabs {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .home-section {
+        padding: 0 .5rem;
+    }
+}

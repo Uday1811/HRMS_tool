@@ -1,0 +1,306 @@
+{% extends 'index.html' %}
+{% load i18n static basefilters horillafilters %}
+
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-card mt-4 mb-5">
+        <!-- Attendance Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <ion-icon name="time-outline" class="me-2"></ion-icon>
+                    {% trans "Attendance Management" %}
+                </h2>
+            </div>
+        </div>
+
+        <!-- Attendance Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-success" onclick="checkIn()">
+                        <ion-icon name="log-in-outline" class="me-1"></ion-icon>
+                        {% trans "Check In" %}
+                    </button>
+                    <button class="btn btn-danger" onclick="checkOut()">
+                        <ion-icon name="log-out-outline" class="me-1"></ion-icon>
+                        {% trans "Check Out" %}
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="showDailyLog()">
+                        <ion-icon name="calendar-outline" class="me-1"></ion-icon>
+                        {% trans "Daily Attendance Log" %}
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showMonthlySummary()">
+                        <ion-icon name="stats-chart-outline" class="me-1"></ion-icon>
+                        {% trans "Monthly Summary Report" %}
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="showWorkHours()">
+                        <ion-icon name="stopwatch-outline" class="me-1"></ion-icon>
+                        {% trans "Work Hours" %}
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="showLocations()">
+                        <ion-icon name="location-outline" class="me-1"></ion-icon>
+                        {% trans "Login & Logout Locations" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Today's Hours" %}</h6>
+                            <h4 class="mb-0 text-success" id="todayHours">8:30</h4>
+                            <small class="text-muted">{% trans "Hours Worked" %}</small>
+                        </div>
+                        <ion-icon name="time-outline" style="font-size: 2rem; color: #28a745;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "This Week" %}</h6>
+                            <h4 class="mb-0 text-primary">42:15</h4>
+                            <small class="text-muted">{% trans "Hours Worked" %}</small>
+                        </div>
+                        <ion-icon name="calendar-outline" style="font-size: 2rem; color: #007bff;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Late Days" %}</h6>
+                            <h4 class="mb-0 text-warning">2</h4>
+                            <small class="text-muted">{% trans "This Month" %}</small>
+                        </div>
+                        <ion-icon name="warning-outline" style="font-size: 2rem; color: #ffc107;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Attendance Rate" %}</h6>
+                            <h4 class="mb-0 text-info">95%</h4>
+                            <small class="text-muted">{% trans "This Month" %}</small>
+                        </div>
+                        <ion-icon name="checkmark-circle-outline" style="font-size: 2rem; color: #17a2b8;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="row">
+            <div class="col-12">
+                <div id="attendanceContent">
+                    <!-- Daily Log Section -->
+                    <div id="dailyLogSection" class="content-section">
+                        <h4 class="mb-3">{% trans "Daily Attendance Log" %}</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Date" %}</th>
+                                        <th>{% trans "Check In" %}</th>
+                                        <th>{% trans "Check Out" %}</th>
+                                        <th>{% trans "Total Hours" %}</th>
+                                        <th>{% trans "Status" %}</th>
+                                        <th>{% trans "Location" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-12-12</td>
+                                        <td>09:00 AM</td>
+                                        <td>06:00 PM</td>
+                                        <td>8:00</td>
+                                        <td><span class="badge bg-success">{% trans "Present" %}</span></td>
+                                        <td>Office</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-12-11</td>
+                                        <td>09:15 AM</td>
+                                        <td>06:15 PM</td>
+                                        <td>8:00</td>
+                                        <td><span class="badge bg-warning">{% trans "Late" %}</span></td>
+                                        <td>Remote</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-12-10</td>
+                                        <td>08:45 AM</td>
+                                        <td>05:45 PM</td>
+                                        <td>8:00</td>
+                                        <td><span class="badge bg-success">{% trans "Present" %}</span></td>
+                                        <td>Office</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Work Hours Stopwatch -->
+                    <div id="workHoursSection" class="content-section d-none">
+                        <h4 class="mb-3">{% trans "Work Hours Tracker" %}</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stopwatch-container text-center">
+                                    <div class="stopwatch-display">
+                                        <h1 id="stopwatchTime">00:00:00</h1>
+                                    </div>
+                                    <div class="stopwatch-controls mt-3">
+                                        <button class="btn btn-success me-2" onclick="startStopwatch()">
+                                            <ion-icon name="play-outline"></ion-icon> {% trans "Start" %}
+                                        </button>
+                                        <button class="btn btn-warning me-2" onclick="pauseStopwatch()">
+                                            <ion-icon name="pause-outline"></ion-icon> {% trans "Pause" %}
+                                        </button>
+                                        <button class="btn btn-danger" onclick="resetStopwatch()">
+                                            <ion-icon name="stop-outline"></ion-icon> {% trans "Reset" %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>{% trans "Today's Breakdown" %}</h5>
+                                <div class="work-breakdown">
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Productive Time" %}:</span>
+                                        <span class="text-success">6:30</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Break Time" %}:</span>
+                                        <span class="text-warning">1:00</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Meeting Time" %}:</span>
+                                        <span class="text-info">1:00</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span><strong>{% trans "Total Time" %}:</strong></span>
+                                        <span class="text-primary"><strong>8:30</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary { border-left: 4px solid #007bff !important; }
+.border-left-success { border-left: 4px solid #28a745 !important; }
+.border-left-warning { border-left: 4px solid #ffc107 !important; }
+.border-left-info { border-left: 4px solid #17a2b8 !important; }
+
+.content-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.stopwatch-display {
+    background: #343a40;
+    color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.stopwatch-display h1 {
+    font-size: 3rem;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+}
+</style>
+
+<script>
+let stopwatchInterval;
+let stopwatchTime = 0;
+let isRunning = false;
+
+function showDailyLog() {
+    hideAllSections();
+    document.getElementById('dailyLogSection').classList.remove('d-none');
+}
+
+function showMonthlySummary() {
+    hideAllSections();
+    // Show monthly summary content
+}
+
+function showWorkHours() {
+    hideAllSections();
+    document.getElementById('workHoursSection').classList.remove('d-none');
+}
+
+function showLocations() {
+    hideAllSections();
+    // Show locations content
+}
+
+function hideAllSections() {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('d-none');
+    });
+}
+
+function checkIn() {
+    alert('{% trans "Check In successful!" %}');
+}
+
+function checkOut() {
+    alert('{% trans "Check Out successful!" %}');
+}
+
+function startStopwatch() {
+    if (!isRunning) {
+        isRunning = true;
+        stopwatchInterval = setInterval(updateStopwatch, 1000);
+    }
+}
+
+function pauseStopwatch() {
+    isRunning = false;
+    clearInterval(stopwatchInterval);
+}
+
+function resetStopwatch() {
+    isRunning = false;
+    clearInterval(stopwatchInterval);
+    stopwatchTime = 0;
+    updateStopwatchDisplay();
+}
+
+function updateStopwatch() {
+    stopwatchTime++;
+    updateStopwatchDisplay();
+}
+
+function updateStopwatchDisplay() {
+    const hours = Math.floor(stopwatchTime / 3600);
+    const minutes = Math.floor((stopwatchTime % 3600) / 60);
+    const seconds = stopwatchTime % 60;
+    
+    const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('stopwatchTime').textContent = display;
+}
+
+// Initialize default view
+document.addEventListener('DOMContentLoaded', function() {
+    showDailyLog();
+});
+</script>
+{% endblock content %}

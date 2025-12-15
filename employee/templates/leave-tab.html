@@ -1,0 +1,1200 @@
+{% load i18n employee_filter %}
+<style>
+  .oh-sticky-table-container {
+    max-width: 2000px;
+    max-height: 170px;
+  }
+  .oh-sticky-table-request {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  .row-status--orange {
+    border-left: 4px solid orange;
+    border-radius: 5px;
+  }
+  .row-status--gray {
+    border-left: 4px solid gray;
+    border-radius: 5px;
+  }
+  .row-status--yellow {
+    border-left: 4px solid yellowgreen;
+    border-radius: 5px;
+  }
+
+  .kanban-card-container {
+    display: flex;
+    gap: 10px;
+    width:100%;
+    overflow-x: scroll;
+  }
+  .oh-kanban-card {
+    min-width: 350px;
+    flex-basis: calc(17% - 15px);
+  }
+  .oh-sticky-table-container + .oh-sticky-table-request {
+    margin-top: 20px;
+  }
+
+  /* Enhanced Leave Management Styles */
+  .leave-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+  }
+  
+  .leave-stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 4px solid;
+    transition: transform 0.2s ease;
+  }
+  
+  .leave-stats-card.border-primary {
+    border-left-color: #007bff !important;
+  }
+  
+  .leave-stats-card.border-success {
+    border-left-color: #28a745 !important;
+  }
+  
+  .leave-stats-card.border-info {
+    border-left-color: #17a2b8 !important;
+  }
+  
+  .leave-stats-card.border-warning {
+    border-left-color: #ffc107 !important;
+  }
+  
+  .leave-stats-card.border-secondary {
+    border-left-color: #6c757d !important;
+  }
+  
+  .leave-stats-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .leave-type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .badge-cl { background: #e3f2fd; color: #1976d2; }
+  .badge-sl { background: #f3e5f5; color: #7b1fa2; }
+  .badge-el { background: #e8f5e8; color: #388e3c; }
+  .badge-wfh { background: #fff3e0; color: #f57c00; }
+  .badge-comp { background: #fce4ec; color: #c2185b; }
+  .badge-lop { background: #ffebee; color: #d32f2f; }
+  
+  .leave-balance-progress {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  
+  .leave-balance-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  
+  .leave-action-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .leave-action-btn:hover {
+    background: #5a6fd8;
+    transform: translateY(-1px);
+  }
+  
+  .leave-calendar-widget {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .holiday-indicator {
+    background: #ff5722;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  
+  .leave-request-timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+  }
+  
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #667eea;
+  }
+  
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: 20px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: #e0e0e0;
+  }
+  
+  .timeline-item:last-child::after {
+    display: none;
+  }
+  
+  .accrual-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+  }
+  
+  .comp-off-badge {
+    background: #4caf50;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+  }
+</style>
+
+<!-- Leave Management Header -->
+<div class="leave-header">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h3 class="mb-2">
+        <ion-icon name="calendar-outline" class="me-2"></ion-icon>
+        {% trans "Leave Management Dashboard" %}
+      </h3>
+      <p class="mb-0 opacity-75">{% trans "Manage your leave requests, view balances, and track approval status" %}</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="leave-action-btn me-2" data-toggle="oh-modal-toggle" data-target="#applyLeaveModal">
+        <ion-icon name="add-outline" class="me-1"></ion-icon>
+        {% trans "Apply Leave" %}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Status Legend -->
+<div class="d-flex flex-wrap justify-content-end mb-3">
+  <span class="m-2">
+    <span class="oh-dot oh-dot--small me-1" style="background-color: #28a745"></span>
+    {% trans "Approved" %}
+  </span>
+  <span class="m-2">
+    <span class="oh-dot oh-dot--small me-1" style="background-color: #ffc107"></span>
+    {% trans "Pending" %}
+  </span>
+  <span class="m-2">
+    <span class="oh-dot oh-dot--small me-1" style="background-color: #dc3545"></span>
+    {% trans "Rejected" %}
+  </span>
+  <span class="m-2">
+    <span class="oh-dot oh-dot--small me-1" style="background-color: #6c757d"></span>
+    {% trans "Cancelled" %}
+  </span>
+</div>
+
+<!-- Leave Balance Overview -->
+<div class="row mb-4">
+  {% if leave_balances %}
+    {% for balance in leave_balances %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+      <div class="leave-stats-card {% if balance.leave_type == 'paid' %}border-primary{% elif balance.leave_type == 'sick' %}border-success{% else %}border-secondary{% endif %}">
+        
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <span class="leave-type-badge 
+              {% if balance.leave_type == 'paid' %}badge-cl
+              {% elif balance.leave_type == 'sick' %}badge-sl
+              {% else %}badge-comp{% endif %}">
+              {% if balance.leave_type == 'paid' %}PL{% elif balance.leave_type == 'sick' %}SL{% endif %}
+            </span>
+            <h6 class="mt-2 mb-1">{{balance.get_leave_type_display}}</h6>
+          </div>
+          <div class="text-end">
+            {% if balance.leave_type == 'paid' %}
+            <ion-icon name="calendar-outline" style="font-size: 24px; color: #007bff;"></ion-icon>
+            {% elif balance.leave_type == 'sick' %}
+            <ion-icon name="medical-outline" style="font-size: 24px; color: #28a745;"></ion-icon>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <small class="text-muted">{% trans "Available" %}</small>
+            <small class="fw-bold">{{balance.available_days}}/{{balance.total_accrued}}</small>
+          </div>
+          <div class="leave-balance-progress">
+            {% if balance.total_accrued > 0 %}
+            {% with balance.leave_type as leave_type %}
+            <div class="leave-balance-fill {% if leave_type == 'paid' %}bg-primary{% elif leave_type == 'sick' %}bg-success{% else %}bg-secondary{% endif %}" 
+                 style="width: {% widthratio balance.available_days balance.total_accrued 100 %}%;"></div>
+            {% endwith %}
+            {% else %}
+            <div class="leave-balance-fill" style="width: 0%; background: #dee2e6;"></div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="row text-center">
+          <div class="col-6">
+            <small class="text-muted d-block">{% trans "Used" %}</small>
+            <span class="fw-bold">{{balance.used_days}}</span>
+          </div>
+          <div class="col-6">
+            <small class="text-muted d-block">{% trans "Accrued" %}</small>
+            <span class="fw-bold">{{balance.total_accrued}}</span>
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <button class="btn btn-sm btn-outline-primary w-100" 
+                  onclick="openLeaveApplication('{{balance.leave_type}}')">
+            <ion-icon name="add-outline" class="me-1"></ion-icon>
+            {% trans "Apply" %}
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% elif employee_leaves %}
+    {% for employee_leave in employee_leaves %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+      <div class="leave-stats-card {% if employee_leave.leave_type_id.name == 'CL' %}border-primary{% elif employee_leave.leave_type_id.name == 'SL' %}border-success{% elif employee_leave.leave_type_id.name == 'EL' %}border-info{% elif employee_leave.leave_type_id.name == 'WFH' %}border-warning{% else %}border-secondary{% endif %}">
+        
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <span class="leave-type-badge 
+              {% if employee_leave.leave_type_id.name == 'CL' %}badge-cl
+              {% elif employee_leave.leave_type_id.name == 'SL' %}badge-sl
+              {% elif employee_leave.leave_type_id.name == 'EL' %}badge-el
+              {% elif employee_leave.leave_type_id.name == 'WFH' %}badge-wfh
+              {% else %}badge-comp{% endif %}">
+              {{employee_leave.leave_type_id.name}}
+            </span>
+            <h6 class="mt-2 mb-1">{{employee_leave.leave_type_id}}</h6>
+          </div>
+          <div class="text-end">
+            {% if employee_leave.leave_type_id.icon %}
+            <img src="{{employee_leave.leave_type_id.icon.url}}" width="32" height="32" alt="{{employee_leave.leave_type_id.name}}">
+            {% else %}
+            <ion-icon name="calendar-outline" style="font-size: 24px; color: #667eea;"></ion-icon>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <small class="text-muted">{% trans "Available" %}</small>
+            <small class="fw-bold">{{employee_leave.available_days}}/{{employee_leave.total_leave_days}}</small>
+          </div>
+          <div class="leave-balance-progress">
+            {% with employee_leave.leave_type_id.name as leave_name %}
+            <div class="leave-balance-fill {% if leave_name == 'CL' %}bg-primary{% elif leave_name == 'SL' %}bg-success{% elif leave_name == 'EL' %}bg-info{% elif leave_name == 'WFH' %}bg-warning{% else %}bg-secondary{% endif %}" 
+                 style="width: {% widthratio employee_leave.available_days employee_leave.total_leave_days 100 %}%;"></div>
+            {% endwith %}
+          </div>
+        </div>
+        
+        <div class="row text-center">
+          <div class="col-6">
+            <small class="text-muted d-block">{% trans "Used" %}</small>
+            <span class="fw-bold">{{employee_leave.total_leave_days|subtract:employee_leave.available_days}}</span>
+          </div>
+          <div class="col-6">
+            <small class="text-muted d-block">{% trans "Carry Forward" %}</small>
+            <span class="fw-bold">{{employee_leave.carryforward_days}}</span>
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <button class="btn btn-sm btn-outline-primary w-100" 
+                  data-toggle="oh-modal-toggle" 
+                  data-target="#editDialog"
+                  hx-get="{% url 'leave-request-creation' employee_leave.leave_type_id.id employee_leave.employee_id.id%}"
+                  hx-target="#requestForm">
+            <ion-icon name="add-outline" class="me-1"></ion-icon>
+            {% trans "Apply" %}
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <!-- Default Leave Types when no data available -->
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+      <div class="leave-stats-card" style="border-left-color: #007bff;">
+        <div class="text-center py-4">
+          <ion-icon name="calendar-outline" style="font-size: 48px; color: #dee2e6;"></ion-icon>
+          <p class="text-muted mt-2 mb-0">{% trans "No leave types assigned" %}</p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Leave Accrual Information -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="accrual-info">
+      <h6 class="mb-2">
+        <ion-icon name="information-circle-outline" class="me-1"></ion-icon>
+        {% trans "Leave Accrual Information" %}
+      </h6>
+      <div class="row">
+        <div class="col-md-3">
+          <small class="text-muted d-block">{% trans "Monthly Accrual" %}</small>
+          <span class="fw-bold">1.5 {% trans "days/month" %}</span>
+        </div>
+        <div class="col-md-3">
+          <small class="text-muted d-block">{% trans "Yearly Allocation" %}</small>
+          <span class="fw-bold">18 {% trans "days" %}</span>
+        </div>
+        <div class="col-md-3">
+          <small class="text-muted d-block">{% trans "Max Carry Forward" %}</small>
+          <span class="fw-bold">5 {% trans "days" %}</span>
+        </div>
+        <div class="col-md-3">
+          <small class="text-muted d-block">{% trans "Encashment Available" %}</small>
+          <span class="fw-bold text-success">{% trans "Yes" %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Requests History -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="leave-calendar-widget">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+          <ion-icon name="list-outline" class="me-2"></ion-icon>
+          {% trans "My Leave Requests" %}
+        </h5>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary active" onclick="showAllRequests()">{% trans "All" %}</button>
+          <button class="btn btn-outline-secondary" onclick="filterRequests('approved')">{% trans "Approved" %}</button>
+          <button class="btn btn-outline-secondary" onclick="filterRequests('requested')">{% trans "Pending" %}</button>
+          <button class="btn btn-outline-secondary" onclick="filterRequests('cancelled')">{% trans "Cancelled" %}</button>
+        </div>
+      </div>
+      
+      <div class="oh-sticky-table-request">
+        <div class="oh-sticky-table">
+          <div class="oh-sticky-table__table oh-table--sortable">
+            <div class="oh-sticky-table__thead">
+              <div class="oh-sticky-table__tr">
+                <div class="oh-sticky-table__th">{% trans "Leave Type" %}</div>
+                <div class="oh-sticky-table__th">{% trans "Duration" %}</div>
+                <div class="oh-sticky-table__th">{% trans "Start Date" %}</div>
+                <div class="oh-sticky-table__th">{% trans "End Date" %}</div>
+                <div class="oh-sticky-table__th">{% trans "Days" %}</div>
+                <div class="oh-sticky-table__th">{% trans "Status" %}</div>
+                <div class="oh-sticky-table__th">{% trans "Actions" %}</div>
+              </div>
+            </div>
+            <div class="oh-sticky-table__tbody">
+              {% for leave_request in leave_requests %}
+              <div class="oh-sticky-table__tr leave-request-row" data-status="{{leave_request.status}}">
+                <div class="oh-sticky-table__td {% if leave_request.status == 'pending' %}row-status--orange {% elif leave_request.status == 'cancelled' %} row-status--gray {% elif leave_request.status == 'approved' %} row-status--yellow{% elif leave_request.status == 'rejected' %} row-status--red{% endif %}">
+                  <div class="oh-profile oh-profile--md">
+                    <div class="oh-profile__avatar mr-1">
+                      {% if leave_request.leave_type == 'paid' %}
+                      <ion-icon name="calendar-outline" style="font-size: 24px; color: #007bff;"></ion-icon>
+                      {% elif leave_request.leave_type == 'sick' %}
+                      <ion-icon name="medical-outline" style="font-size: 24px; color: #28a745;"></ion-icon>
+                      {% elif leave_request.leave_type == 'lop' %}
+                      <ion-icon name="remove-circle-outline" style="font-size: 24px; color: #dc3545;"></ion-icon>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <span class="oh-profile__name oh-text--dark">{{leave_request.get_leave_type_display}}</span>
+                      <br>
+                      <span class="leave-type-badge 
+                        {% if leave_request.leave_type == 'paid' %}badge-cl
+                        {% elif leave_request.leave_type == 'sick' %}badge-sl
+                        {% elif leave_request.leave_type == 'lop' %}badge-lop
+                        {% else %}badge-comp{% endif %}">
+                        {% if leave_request.leave_type == 'paid' %}PL
+                        {% elif leave_request.leave_type == 'sick' %}SL
+                        {% elif leave_request.leave_type == 'lop' %}LOP
+                        {% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="oh-sticky-table__td">
+                  {% if leave_request.duration == 'full_day' %}
+                    <span class="badge bg-primary">{% trans "Full Day" %}</span>
+                  {% else %}
+                    <span class="badge bg-warning">{% trans "Half Day" %}</span>
+                  {% endif %}
+                </div>
+                <div class="oh-sticky-table__td">
+                  <strong>{{leave_request.start_date|date:"M d, Y"}}</strong>
+                  {% if leave_request.duration != 'full_day' %}
+                    <br><small class="text-muted">{{leave_request.get_duration_display}}</small>
+                  {% endif %}
+                </div>
+                <div class="oh-sticky-table__td">
+                  <strong>{{leave_request.end_date|date:"M d, Y"}}</strong>
+                  {% if leave_request.duration != 'full_day' %}
+                    <br><small class="text-muted">{{leave_request.get_duration_display}}</small>
+                  {% endif %}
+                </div>
+                <div class="oh-sticky-table__td">
+                  <span class="fw-bold">{{leave_request.requested_days}}</span>
+                  <small class="text-muted d-block">{% trans "days" %}</small>
+                </div>
+                <div class="oh-sticky-table__td">
+                  {% if leave_request.status == 'approved' %}
+                    <span class="badge bg-success">
+                      <ion-icon name="checkmark-circle-outline" class="me-1"></ion-icon>
+                      {% trans "Approved" %}
+                    </span>
+                  {% elif leave_request.status == 'pending' %}
+                    <span class="badge bg-warning">
+                      <ion-icon name="time-outline" class="me-1"></ion-icon>
+                      {% trans "Pending Manager Approval" %}
+                    </span>
+                  {% elif leave_request.status == 'cancelled' %}
+                    <span class="badge bg-secondary">
+                      <ion-icon name="close-circle-outline" class="me-1"></ion-icon>
+                      {% trans "Cancelled" %}
+                    </span>
+                  {% elif leave_request.status == 'rejected' %}
+                    <span class="badge bg-danger">
+                      <ion-icon name="close-outline" class="me-1"></ion-icon>
+                      {% trans "Rejected" %}
+                    </span>
+                  {% endif %}
+                </div>
+                <div class="oh-sticky-table__td">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-info btn-sm" 
+                            onclick="viewLeaveDetails({{leave_request.id}})"
+                            title="View Details">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </button>
+                    {% if leave_request.status == 'pending' %}
+                    <button class="btn btn-outline-danger btn-sm" 
+                            onclick="cancelLeaveRequest({{leave_request.id}})"
+                            title="Cancel Request">
+                      <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                    {% endif %}
+                    {% if leave_request.manager == employee and leave_request.status == 'pending' %}
+                    <button class="btn btn-outline-success btn-sm" 
+                            onclick="approveLeaveRequest({{leave_request.id}})"
+                            title="Approve">
+                      <ion-icon name="checkmark-outline"></ion-icon>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" 
+                            onclick="rejectLeaveRequest({{leave_request.id}})"
+                            title="Reject">
+                      <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+              <div class="oh-sticky-table__tr">
+                <div class="oh-sticky-table__td text-center" colspan="7">
+                  <div class="py-4">
+                    <ion-icon name="calendar-outline" style="font-size: 48px; color: #dee2e6;"></ion-icon>
+                    <p class="text-muted mt-2 mb-0">{% trans "No leave requests found" %}</p>
+                    <button class="btn btn-primary btn-sm mt-2" data-toggle="oh-modal-toggle" data-target="#editDialog">
+                      {% trans "Apply for your first leave" %}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar with Additional Information -->
+  <div class="col-lg-4">
+    <!-- Approval Workflow -->
+    <div class="leave-calendar-widget mb-4">
+      <h6 class="mb-3">
+        <ion-icon name="git-branch-outline" class="me-2"></ion-icon>
+        {% trans "Approval Workflow" %}
+      </h6>
+      <div class="leave-request-timeline">
+        <div class="timeline-item">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">{% trans "Employee Request" %}</span>
+            <small class="text-muted">{% trans "Step 1" %}</small>
+          </div>
+          <small class="text-muted">{% trans "Submit leave application with reason" %}</small>
+        </div>
+        <div class="timeline-item">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">{% trans "Manager Review" %}</span>
+            <small class="text-muted">{% trans "Step 2" %}</small>
+          </div>
+          <small class="text-muted">{% trans "Direct manager approves/rejects request" %}</small>
+        </div>
+        <div class="timeline-item">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">{% trans "HR Approval" %}</span>
+            <small class="text-muted">{% trans "Step 3" %}</small>
+          </div>
+          <small class="text-muted">{% trans "HR final approval for policy compliance" %}</small>
+        </div>
+        <div class="timeline-item">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">{% trans "Auto Integration" %}</span>
+            <small class="text-muted">{% trans "Step 4" %}</small>
+          </div>
+          <small class="text-muted">{% trans "Updates attendance & payroll automatically" %}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comp-Off Information -->
+    <div class="leave-calendar-widget mb-4">
+      <h6 class="mb-3">
+        <ion-icon name="trophy-outline" class="me-2"></ion-icon>
+        {% trans "Comp-Off Balance" %}
+      </h6>
+      <div class="text-center py-3">
+        <h4 class="text-success mb-1">2.5</h4>
+        <small class="text-muted">{% trans "Days Available" %}</small>
+        <div class="mt-2">
+          <span class="comp-off-badge">{% trans "Earned from weekend work" %}</span>
+        </div>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between mb-2">
+        <small class="text-muted">{% trans "Validity Period" %}</small>
+        <small class="fw-bold">45 {% trans "days" %}</small>
+      </div>
+      <div class="d-flex justify-content-between">
+        <small class="text-muted">{% trans "Max Usage/Month" %}</small>
+        <small class="fw-bold">5 {% trans "days" %}</small>
+      </div>
+    </div>
+
+    <!-- Holiday Calendar Widget -->
+    <div class="leave-calendar-widget">
+      <h6 class="mb-3">
+        <ion-icon name="calendar-number-outline" class="me-2"></ion-icon>
+        {% trans "Upcoming Holidays" %}
+      </h6>
+      <div class="holiday-list">
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <div>
+            <span class="fw-bold">{% trans "Christmas Day" %}</span>
+            <br><small class="text-muted">{% trans "Public Holiday" %}</small>
+          </div>
+          <div class="holiday-indicator">25</div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <div>
+            <span class="fw-bold">{% trans "New Year's Day" %}</span>
+            <br><small class="text-muted">{% trans "Public Holiday" %}</small>
+          </div>
+          <div class="holiday-indicator">1</div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <div>
+            <span class="fw-bold">{% trans "Republic Day" %}</span>
+            <br><small class="text-muted">{% trans "National Holiday" %}</small>
+          </div>
+          <div class="holiday-indicator">26</div>
+        </div>
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-outline-secondary btn-sm">
+          <ion-icon name="calendar-outline" class="me-1"></ion-icon>
+          {% trans "View Full Calendar" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Leave Application Modal -->
+<div class="oh-modal" id="editDialog" role="dialog" aria-labelledby="editDialogModal" aria-hidden="true">
+  <div class="oh-modal__dialog oh-modal__dialog--timeoff">
+    <div class="oh-modal__dialog-header">
+      <span class="oh-modal__dialog-title" id="editDialogDialog">
+        <ion-icon name="calendar-outline" class="me-2"></ion-icon>
+        {% trans "Apply for Leave" %}
+      </span>
+      <button class="oh-modal__close" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div id="requestForm"></div>
+  </div>
+</div>
+
+<!-- Apply Leave Modal -->
+<div class="oh-modal" id="applyLeaveModal" role="dialog" aria-hidden="true">
+  <div class="oh-modal__dialog oh-modal__dialog--lg">
+    <div class="oh-modal__dialog-header">
+      <span class="oh-modal__dialog-title">
+        <ion-icon name="add-circle-outline" class="me-2"></ion-icon>
+        {% trans "Apply for Leave" %}
+      </span>
+      <button class="oh-modal__close" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="oh-modal__dialog-body">
+      <form id="leaveApplicationForm">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+              <ion-icon name="list-outline" class="me-1"></ion-icon>
+              {% trans "Leave Type" %} <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="leaveType" required>
+              <option value="">{% trans "Select Leave Type" %}</option>
+              <option value="paid">{% trans "Paid Leave (PL)" %}</option>
+              <option value="sick">{% trans "Sick Leave (SL)" %}</option>
+            </select>
+            <div id="leaveBalanceInfo" class="mt-2 p-2 bg-light rounded d-none">
+              <small class="text-muted">{% trans "Available Balance" %}: <span id="availableBalance" class="fw-bold text-success">0</span> {% trans "days" %}</small>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+              <ion-icon name="time-outline" class="me-1"></ion-icon>
+              {% trans "Duration" %} <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="leaveDuration" required>
+              <option value="full_day">{% trans "Full Day" %}</option>
+              <option value="first_half">{% trans "First Half" %}</option>
+              <option value="second_half">{% trans "Second Half" %}</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+              <ion-icon name="calendar-outline" class="me-1"></ion-icon>
+              {% trans "Start Date" %} <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control" id="startDate" required>
+            <small class="text-muted">{% trans "Select your leave start date" %}</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+              <ion-icon name="calendar-outline" class="me-1"></ion-icon>
+              {% trans "End Date" %} <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control" id="endDate" required>
+            <small class="text-muted">{% trans "Select your leave end date" %}</small>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="p-3 bg-info bg-opacity-10 rounded">
+                <h6 class="text-info mb-2">
+                  <ion-icon name="calculator-outline" class="me-1"></ion-icon>
+                  {% trans "Leave Calculation" %}
+                </h6>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>{% trans "Total Days" %}:</span>
+                  <span id="totalDays" class="fw-bold">0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>{% trans "Weekends" %}:</span>
+                  <span id="weekendDays" class="text-muted">0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>{% trans "Holidays" %}:</span>
+                  <span id="holidayDays" class="text-muted">0</span>
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between">
+                  <span class="fw-bold">{% trans "Leave Days" %}:</span>
+                  <span id="leaveDays" class="fw-bold text-primary">0</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-warning bg-opacity-10 rounded">
+                <h6 class="text-warning mb-2">
+                  <ion-icon name="warning-outline" class="me-1"></ion-icon>
+                  {% trans "Important Notes" %}
+                </h6>
+                <ul class="small mb-0 ps-3">
+                  <li>{% trans "Leave requests require manager approval" %}</li>
+                  <li>{% trans "Apply at least 2 days in advance" %}</li>
+                  <li>{% trans "Attach medical certificate for sick leave > 2 days" %}</li>
+                  <li>{% trans "Check holiday calendar before applying" %}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            <ion-icon name="document-text-outline" class="me-1"></ion-icon>
+            {% trans "Reason for Leave" %} <span class="text-danger">*</span>
+          </label>
+          <textarea class="form-control" id="leaveReason" rows="3" required 
+                    placeholder="{% trans 'Please provide a detailed reason for your leave request...' %}"></textarea>
+          <div class="form-text">{% trans "Minimum 10 characters required" %}</div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            <ion-icon name="attach-outline" class="me-1"></ion-icon>
+            {% trans "Supporting Documents" %} <span class="text-muted">({% trans "Optional" %})</span>
+          </label>
+          <input type="file" class="form-control" id="leaveAttachment" multiple 
+                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+          <div class="form-text">{% trans "Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB each)" %}</div>
+        </div>
+        
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="emergencyLeave">
+            <label class="form-check-label" for="emergencyLeave">
+              <ion-icon name="flash-outline" class="me-1 text-warning"></ion-icon>
+              {% trans "This is an emergency leave request" %}
+            </label>
+          </div>
+          <small class="text-muted">{% trans "Emergency requests may bypass normal approval workflow" %}</small>
+        </div>
+      </form>
+    </div>
+    <div class="oh-modal__dialog-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('applyLeaveModal')">
+        <ion-icon name="close-outline" class="me-1"></ion-icon>
+        {% trans "Cancel" %}
+      </button>
+      <button type="button" class="btn btn-primary" onclick="submitLeaveApplication()">
+        <ion-icon name="paper-plane-outline" class="me-1"></ion-icon>
+        {% trans "Submit Application" %}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Details Modal -->
+<div class="oh-modal" id="tableTimeOff" role="dialog" aria-hidden="true">
+  <div class="oh-modal__dialog oh-modal__dialog--lg">
+    <div class="oh-modal__dialog-header">
+      <span class="oh-modal__dialog-title">
+        <ion-icon name="eye-outline" class="me-2"></ion-icon>
+        {% trans "Leave Request Details" %}
+      </span>
+      <button class="oh-modal__close" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div id="userRequestView"></div>
+  </div>
+</div>
+
+<script>
+// Leave Management JavaScript Functions
+document.addEventListener('DOMContentLoaded', function() {
+    initializeLeaveFunctions();
+});
+
+function initializeLeaveFunctions() {
+    // Initialize date inputs with today's date as minimum
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').min = today;
+    document.getElementById('endDate').min = today;
+    
+    // Add event listeners
+    document.getElementById('leaveType').addEventListener('change', updateLeaveBalance);
+    document.getElementById('startDate').addEventListener('change', calculateLeaveDays);
+    document.getElementById('endDate').addEventListener('change', calculateLeaveDays);
+    document.getElementById('leaveDuration').addEventListener('change', calculateLeaveDays);
+}
+
+function updateLeaveBalance() {
+    const leaveType = document.getElementById('leaveType').value;
+    const balanceInfo = document.getElementById('leaveBalanceInfo');
+    const availableBalance = document.getElementById('availableBalance');
+    
+    if (leaveType) {
+        // Fetch actual balance from API
+        fetch(`/employee/api/leave/balance/${leaveType}/`, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const balance = data.balance.available_days;
+                availableBalance.textContent = balance;
+                balanceInfo.classList.remove('d-none');
+                
+                // Update balance color based on availability
+                if (balance > 5) {
+                    availableBalance.className = 'fw-bold text-success';
+                } else if (balance > 2) {
+                    availableBalance.className = 'fw-bold text-warning';
+                } else if (balance > 0) {
+                    availableBalance.className = 'fw-bold text-danger';
+                } else {
+                    availableBalance.className = 'fw-bold text-danger';
+                    availableBalance.textContent = '0 (Will be LOP)';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching balance:', error);
+            balanceInfo.classList.add('d-none');
+        });
+    } else {
+        balanceInfo.classList.add('d-none');
+    }
+}
+
+function calculateLeaveDays() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const endDate = new Date(document.getElementById('endDate').value);
+    const duration = document.getElementById('leaveDuration').value;
+    
+    if (startDate && endDate && startDate <= endDate) {
+        const timeDiff = endDate.getTime() - startDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+        
+        // Calculate weekends and holidays (mock calculation)
+        let weekends = 0;
+        let holidays = 0;
+        
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            if (d.getDay() === 0 || d.getDay() === 6) {
+                weekends++;
+            }
+            // Add holiday checking logic here
+        }
+        
+        let leaveDays = daysDiff - weekends - holidays;
+        
+        // Adjust for half days
+        if (duration !== 'full_day') {
+            leaveDays = leaveDays * 0.5;
+        }
+        
+        // Update display
+        document.getElementById('totalDays').textContent = daysDiff;
+        document.getElementById('weekendDays').textContent = weekends;
+        document.getElementById('holidayDays').textContent = holidays;
+        document.getElementById('leaveDays').textContent = leaveDays;
+    }
+}
+
+function submitLeaveApplication() {
+    const form = document.getElementById('leaveApplicationForm');
+    const formData = new FormData();
+    
+    // Validate form
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Validate reason length
+    const reason = document.getElementById('leaveReason').value;
+    if (reason.length < 10) {
+        showNotification('Reason must be at least 10 characters long', 'error');
+        return;
+    }
+    
+    // Collect form data
+    formData.append('leave_type', document.getElementById('leaveType').value);
+    formData.append('duration', document.getElementById('leaveDuration').value);
+    formData.append('start_date', document.getElementById('startDate').value);
+    formData.append('end_date', document.getElementById('endDate').value);
+    formData.append('reason', reason);
+    formData.append('emergency', document.getElementById('emergencyLeave').checked);
+    
+    // Add file attachments
+    const files = document.getElementById('leaveAttachment').files;
+    for (let i = 0; i < files.length; i++) {
+        formData.append('attachments', files[i]);
+    }
+    
+    // Submit via AJAX
+    fetch('/employee/api/leave/apply/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Leave application submitted successfully and is pending manager approval!', 'success');
+            closeModal('applyLeaveModal');
+            location.reload(); // Refresh to show new request
+        } else if (data.requires_confirmation) {
+            // Handle LOP confirmation
+            const confirmMessage = data.message + '\n\nDo you want to proceed?';
+            if (confirm(confirmMessage)) {
+                // Resubmit with confirmation
+                formData.append('confirm_lop', 'true');
+                submitLeaveWithConfirmation(formData);
+            }
+        } else {
+            showNotification('Error: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Network error. Please try again.', 'error');
+    });
+}
+
+function submitLeaveWithConfirmation(formData) {
+    fetch('/employee/api/leave/apply/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Leave application submitted successfully (includes LOP days)!', 'success');
+            closeModal('applyLeaveModal');
+            location.reload();
+        } else {
+            showNotification('Error: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Network error. Please try again.', 'error');
+    });
+}
+
+function filterRequests(status) {
+    const rows = document.querySelectorAll('.leave-request-row');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    // Update button states
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter rows
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function showAllRequests() {
+    const rows = document.querySelectorAll('.leave-request-row');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    buttons[0].classList.add('active');
+    
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+function cancelLeaveRequest(requestId) {
+    if (confirm("{% trans 'Are you sure you want to cancel this leave request?' %}")) {
+        fetch(`/employee/api/leave/cancel/${requestId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Leave request cancelled successfully!', 'success');
+                location.reload();
+            } else {
+                showNotification('Error cancelling leave request: ' + data.message, 'error');
+            }
+        });
+    }
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Custom template filter simulation for subtraction
+function widthsubtract(total, available) {
+    return total - available;
+}
+
+function openLeaveApplication(leaveType = '') {
+    // Open the modal
+    document.getElementById('applyLeaveModal').style.display = 'block';
+    
+    // Pre-select leave type if provided
+    if (leaveType) {
+        document.getElementById('leaveType').value = leaveType;
+        updateLeaveBalance();
+    }
+    
+    // Reset form
+    document.getElementById('leaveApplicationForm').reset();
+    if (leaveType) {
+        document.getElementById('leaveType').value = leaveType;
+    }
+}
+
+function approveLeaveRequest(requestId) {
+    const comments = prompt("{% trans 'Add approval comments (optional):' %}");
+    if (comments !== null) { // User didn't cancel
+        const formData = new FormData();
+        formData.append('comments', comments);
+        
+        fetch(`/employee/api/leave/approve/${requestId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Leave request approved successfully!', 'success');
+                location.reload();
+            } else {
+                showNotification('Error approving request: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Network error. Please try again.', 'error');
+        });
+    }
+}
+
+function rejectLeaveRequest(requestId) {
+    const comments = prompt("{% trans 'Add rejection reason (required):' %}");
+    if (comments && comments.trim()) {
+        const formData = new FormData();
+        formData.append('comments', comments);
+        
+        fetch(`/employee/api/leave/reject/${requestId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Leave request rejected successfully!', 'success');
+                location.reload();
+            } else {
+                showNotification('Error rejecting request: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Network error. Please try again.', 'error');
+        });
+    } else if (comments !== null) {
+        showNotification('Rejection reason is required', 'error');
+    }
+}
+
+function viewLeaveDetails(requestId) {
+    // This function can be expanded to show detailed leave request information
+    showNotification('Leave details view - to be implemented', 'info');
+}
+</script>

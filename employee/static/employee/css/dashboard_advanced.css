@@ -1,0 +1,343 @@
+/*
+  Dashboard Advanced CSS
+  -------------------------------------------------
+  Provides premium, glass-morphism layout for dashbaords.
+*/
+
+:root {
+    --color-primary-h: 210;
+    --color-primary-s: 70%;
+    --color-primary-l: 55%;
+    --color-primary: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
+
+    --color-bg-dark: #121212;
+    --color-surface-trans: rgba(255, 255, 255, 0.08);
+    /* 8% white */
+    --color-surface-hover: rgba(255, 255, 255, 0.12);
+    --color-border: rgba(255, 255, 255, 0.1);
+
+    --color-text: #e0e0e0;
+    --color-text-muted: #a0a0a0;
+
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+    --anim-speed: 0.3s;
+}
+
+:root[data-theme='light'] {
+    --color-bg-dark: #f4f6f9;
+    --color-surface-trans: #ffffff;
+    --color-surface-hover: #eef2f7;
+    --color-border: #dbe0e5;
+    --color-text: #2d3748;
+    --color-text-muted: #718096;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --color-primary-l: 45%;
+}
+
+body {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dashboard-page {
+    color: var(--color-text);
+    min-height: 100vh;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+:root[data-theme='light'] .dashboard-header h2 {
+    background: linear-gradient(135deg, #1a202c 0%, #4c51bf 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.dashboard-header p {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.dashboard-header .button {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Cards */
+.dashboard-card {
+    background: var(--color-surface-trans);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: transform var(--anim-speed), box-shadow var(--anim-speed), background var(--anim-speed);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-card h3,
+.dashboard-card h4,
+.dashboard-card h5 {
+    margin-top: 0;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+/* Tabs */
+.dashboard-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.tab-item {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all var(--anim-speed);
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.tab-item:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+.tab-item.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.tab-item ion-icon {
+    margin-right: 0.5rem;
+    font-size: 1.1em;
+}
+
+/* Utility Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badges & Buttons */
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    background-color: var(--color-surface-trans);
+    color: var(--color-text);
+}
+
+.button {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.button:active {
+    transform: scale(0.95);
+}
+
+/* Payslip specific overrides */
+.payslip-row {
+    cursor: pointer;
+}
+
+.payslip-row:hover {
+    background: var(--color-surface-hover) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Avatar Styling */
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--color-surface-hover);
+    box-shadow: var(--shadow-md);
+}
+
+/* Modal Advanced Styling (Bootstrap) */
+.modal-content {
+    background: var(--color-bg-dark) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    color: var(--color-text) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+    .modal-content {
+        background: rgba(30, 30, 30, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+    }
+}
+
+:root[data-theme='light'] .modal-content {
+    background: #ffffff !important;
+    color: #2d3748 !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--color-border) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--color-border) !important;
+}
+
+.modal-title {
+    color: var(--color-text) !important;
+    font-weight: 600 !important;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+:root[data-theme='light'] .btn-close {
+    filter: none !important;
+}
+
+/* Form Controls in Modal (Bootstrap & HRMS) */
+.modal-body .form-control,
+.modal-body .form-select,
+.oh-modal__dialog-body .oh-input,
+.oh-modal__dialog-body select,
+.oh-modal__dialog-body textarea,
+/* Target input elements specifically to match HRMS inputs */
+.oh-modal__dialog-body input[type="text"],
+.oh-modal__dialog-body input[type="date"],
+.oh-modal__dialog-body input[type="number"],
+.oh-modal__dialog-body input[type="file"] {
+    background-color: var(--color-surface-trans) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+    border-radius: var(--radius-md) !important;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus,
+.oh-modal__dialog-body .oh-input:focus,
+.oh-modal__dialog-body select:focus,
+.oh-modal__dialog-body textarea:focus,
+.oh-modal__dialog-body input[type="text"]:focus,
+.oh-modal__dialog-body input[type="date"]:focus,
+.oh-modal__dialog-body input[type="number"]:focus {
+    background-color: var(--color-surface-hover) !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l), 0.25) !important;
+    color: var(--color-text) !important;
+}
+
+.modal-body .form-label,
+.oh-modal__dialog-body label {
+    color: var(--color-text-muted) !important;
+}
+
+/* HRMS 'oh-modal' Styling Overrides */
+.oh-modal__dialog {
+    background: var(--color-bg-dark) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    color: var(--color-text) !important;
+    box-shadow: var(--shadow-md) !important;
+    /* Ensure padding isn't breaking layout */
+}
+
+.oh-modal__dialog-header,
+.oh-modal__dialog-footer {
+    border-color: var(--color-border) !important;
+    background: transparent !important;
+}
+
+.oh-modal__dialog-title {
+    color: var(--color-text) !important;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+    .oh-modal__dialog {
+        background: rgba(30, 30, 30, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+    }
+}

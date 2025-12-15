@@ -1,0 +1,62 @@
+{% load i18n %}
+<div class="oh-modal__dialog-header">
+    <span class="oh-modal__dialog-title" id="objectCreateModalLabel">{% trans "Apply Leave" %}</span>
+    <button class="oh-modal__close" aria-label="Close" onclick="$('#objectCreateModal').removeClass('oh-modal--show')">
+        <ion-icon name="close-outline"></ion-icon>
+    </button>
+</div>
+<div class="oh-modal__dialog-body">
+    <form hx-post="{% url 'apply-leave-api' %}" hx-target="#objectCreateModalTarget" class="oh-profile-section">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                <div class="oh-input-group">
+                    <label class="oh-label">{% trans "Leave Type" %}</label>
+                    <select name="leave_type" class="oh-input oh-select" required>
+                        <option value="">{% trans "Select Leave Type" %}</option>
+                        <option value="cl">Casual Leave</option>
+                        <option value="sl">Sick Leave</option>
+                        <option value="el">Earned Leave</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                <div class="oh-input-group">
+                    <label class="oh-label">{% trans "Duration" %}</label>
+                    <select name="duration" class="oh-input oh-select">
+                        <option value="full_day">Full Day</option>
+                        <option value="first_half">First Half</option>
+                        <option value="second_half">Second Half</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                <div class="oh-input-group">
+                    <label class="oh-label">{% trans "Start Date" %}</label>
+                    <input type="date" name="start_date" class="oh-input" required>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-6">
+                <div class="oh-input-group">
+                    <label class="oh-label">{% trans "End Date" %}</label>
+                    <input type="date" name="end_date" class="oh-input" required>
+                </div>
+            </div>
+        </div>
+        <div class="oh-input-group">
+            <label class="oh-label">{% trans "Reason" %}</label>
+            <textarea name="reason" class="oh-input" rows="4" required></textarea>
+        </div>
+        <div class="oh-modal__dialog-footer">
+            <button type="submit" class="oh-btn oh-btn--secondary oh-btn--shadow">
+                {% trans "Submit Request" %}
+            </button>
+            <button type="button" class="oh-btn oh-btn--danger oh-modal__cancel"
+                onclick="$('#objectCreateModal').removeClass('oh-modal--show')">
+                {% trans "Cancel" %}
+            </button>
+        </div>
+    </form>
+</div>

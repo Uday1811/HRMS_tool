@@ -1,0 +1,260 @@
+{% extends 'index.html' %}
+{% load static i18n %}
+
+{% block content %}
+<style>
+    .leave-card {
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .leave-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-cl {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-sl {
+        background: linear-gradient(135deg, #FFB75E 0%, #ED8F03 100%);
+    }
+
+    .card-el {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .card-pending {
+        background: linear-gradient(135deg, #FF5F6D 0%, #FFC371 100%);
+    }
+
+    .leave-count {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .leave-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .leave-total {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .action-btn {
+        margin-right: 10px;
+        border-radius: 20px;
+        padding: 8px 20px;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        height: 400px;
+    }
+
+    .history-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">{% trans "Leave Management" %}</h3>
+            <p class="text-muted">{% trans "Track and manage your leave requests" %}</p>
+        </div>
+        <div>
+            <button class="btn btn-primary action-btn" hx-get="{% url 'apply-leave-api' %}"
+                hx-target="#objectCreateModalTarget" data-toggle="modal" data-target="#objectCreateModal">
+                <i class="ion-plus-round mr-2"></i> {% trans "+ Apply Leave" %}
+            </button>
+            <a href="{% url 'holiday-calendar' %}" class="btn btn-outline-secondary action-btn">
+                <i class="ion-calendar mr-2"></i> {% trans "Holiday Calendar" %}
+            </a>
+            <a href="{% url 'user-request-view' %}" class="btn btn-outline-info action-btn">
+                <i class="ion-ios-time-outline mr-2"></i> {% trans "Leave History" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="row">
+        <!-- Casual Leave -->
+        <div class="col-md-3">
+            <div class="leave-card card-cl">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="leave-count">{{ cl_balance.available|default:0 }}</div>
+                        <div class="leave-label">{% trans "Casual Leave" %}</div>
+                        <div class="leave-total">{% trans "Available" %} / {{ cl_balance.total|default:0 }}</div>
+                    </div>
+                    <i class="ion-coffee" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sick Leave -->
+        <div class="col-md-3">
+            <div class="leave-card card-sl">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="leave-count">{{ sl_balance.available|default:0 }}</div>
+                        <div class="leave-label">{% trans "Sick Leave" %}</div>
+                        <div class="leave-total">{% trans "Available" %} / {{ sl_balance.total|default:0 }}</div>
+                    </div>
+                    <i class="ion-thermometer" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earned Leave -->
+        <div class="col-md-3">
+            <div class="leave-card card-el">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="leave-count">{{ el_balance.available|default:0 }}</div>
+                        <div class="leave-label">{% trans "Earned Leave" %}</div>
+                        <div class="leave-total">{% trans "Available" %} / {{ el_balance.total|default:0 }}</div>
+                    </div>
+                    <i class="ion-plane" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="col-md-3">
+            <div class="leave-card card-pending">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="leave-count">{{ pending_requests|default:0 }}</div>
+                        <div class="leave-label">{% trans "Pending Requests" %}</div>
+                        <div class="leave-total">{% trans "Awaiting Approval" %}</div>
+                    </div>
+                    <i class="ion-clock" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Chart Section -->
+        <div class="col-md-5">
+            <div class="chart-container">
+                <h5>{% trans "Leave Balance Overview" %}</h5>
+                <canvas id="leaveBalanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent History Section -->
+        <div class="col-md-7">
+            <div class="history-container">
+                <h5 class="mb-3">{% trans "Recent Requests" %}</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "Date" %}</th>
+                                <th>{% trans "Days" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Action" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in recent_requests %}
+                            <tr>
+                                <td>
+                                    <span class="badge badge-pill 
+                                        {% if req.leave_type == 'cl' %}badge-primary
+                                        {% elif req.leave_type == 'sl' %}badge-warning
+                                        {% elif req.leave_type == 'el' %}badge-success
+                                        {% else %}badge-secondary{% endif %}">
+                                        {{ req.get_leave_type_display }}
+                                    </span>
+                                </td>
+                                <td>{{ req.start_date|date:"M d" }} - {{ req.end_date|date:"M d, Y" }}</td>
+                                <td>{{ req.requested_days }}</td>
+                                <td>
+                                    {% if req.status == 'approved' %}
+                                    <span class="text-success"><i class="ion-checkmark-circled"></i> {% trans "Approved"
+                                        %}</span>
+                                    {% elif req.status == 'rejected' %}
+                                    <span class="text-danger"><i class="ion-close-circled"></i> {% trans "Rejected"
+                                        %}</span>
+                                    {% elif req.status == 'pending' %}
+                                    <span class="text-warning"><i class="ion-clock"></i> {% trans "Pending" %}</span>
+                                    {% else %}
+                                    <span class="text-muted">{{ req.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if req.status == 'pending' %}
+                                    <button class="btn btn-sm btn-outline-danger"
+                                        hx-post="{% url 'cancel-leave-api' req.id %}"
+                                        hx-confirm="{% trans 'Are you sure you want to cancel this request?' %}">
+                                        {% trans "Cancel" %}
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">{% trans "No recent leave requests
+                                    found." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('leaveBalanceChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Casual Leave', 'Sick Leave', 'Earned Leave'],
+                datasets: [{
+                    data: [
+                        {{ cl_balance.available |default: 0 }},
+                {{ sl_balance.available |default: 0 }},
+                        {{ el_balance.available |default: 0 }}
+                    ],
+        backgroundColor: [
+        '#667eea',
+        '#FFB75E',
+        '#11998e'
+    ],
+        borderWidth: 0
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+            position: 'bottom'
+        },
+        cutoutPercentage: 70
+    }
+        });
+    });
+</script>
+{% endblock %}

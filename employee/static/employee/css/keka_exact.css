@@ -1,0 +1,267 @@
+:root {
+    --keka-primary: #3480ea;
+    --keka-text: #414455;
+    --keka-muted: #7d8498;
+    --keka-off-white: #f8f9fa;
+    --keka-border: #e9eaed;
+    --keka-bg: #f4f6f8;
+    --keka-card-bg: #ffffff;
+    --keka-card-text: #414455;
+}
+
+:root[data-theme='dark'] {
+    --keka-primary: #4f94ff;
+    --keka-text: #e0e0e0;
+    --keka-muted: #a0a0a0;
+    --keka-off-white: #1e1e1e;
+    --keka-border: #333333;
+    --keka-bg: #121212;
+    --keka-card-bg: #1e1e1e;
+    --keka-card-text: #e0e0e0;
+}
+
+
+.keka-theme {
+    background-color: var(--keka-bg);
+    color: var(--keka-text);
+    font-family: 'Inter', sans-serif;
+    min-height: 80vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.keka-card {
+    background: var(--keka-card-bg);
+    color: var(--keka-card-text);
+    border: 1px solid var(--keka-border);
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    height: 100%;
+}
+
+.keka-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--keka-text);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--keka-border);
+    padding-bottom: 10px;
+}
+
+/* --- Left Panel: Attendance Stats --- */
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--keka-border);
+}
+
+.stats-row:last-child {
+    border-bottom: none;
+}
+
+.stats-label {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffc107;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-value {
+    font-weight: 600;
+    color: var(--keka-text);
+}
+
+.stats-sub {
+    font-size: 0.85rem;
+    color: var(--keka-muted);
+}
+
+/* --- Middle Panel: Timings --- */
+.week-circles {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.day-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border-radius: 50%;
+    background: var(--keka-off-white);
+    color: var(--keka-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.day-circle.active {
+    background: var(--keka-primary);
+    color: #fff;
+}
+
+.shift-progress {
+    height: 6px;
+    border-radius: 3px;
+    border-radius: 3px;
+    background: var(--keka-off-white);
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.shift-progress-bar {
+    height: 100%;
+    background: var(--keka-primary);
+    width: 0%;
+    /* Dynamic */
+}
+
+/* --- Right Panel: Actions --- */
+.clock-display {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--keka-text);
+    margin-bottom: 5px;
+}
+
+.date-display {
+    color: var(--keka-muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.btn-keka-clock {
+    background: var(--keka-primary);
+    color: #fff;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    width: 100%;
+    margin-bottom: 15px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.btn-keka-clock:hover {
+    background: #2864bd;
+}
+
+/* --- Bottom Panel: Logs Table --- */
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.logs-table th {
+    text-align: left;
+    color: var(--keka-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--keka-border);
+}
+
+.logs-table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--keka-border);
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: var(--keka-text);
+}
+
+.log-visual-track {
+    background-color: var(--keka-off-white);
+    height: 8px;
+    border-radius: 4px;
+    width: 100%;
+    min-width: 150px;
+    position: relative;
+}
+
+.log-visual-bar {
+    background-color: #2ab7ca;
+    /* Teal/Cyan look from image */
+    height: 100%;
+    position: absolute;
+    border-radius: 4px;
+}
+
+.pill {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.pill-wfh {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.pill-leave {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.pill-woff {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-green {
+    background: #4caf50;
+}
+
+.status-red {
+    background: #f44336;
+}
+
+.status-blue {
+    background: #2196f3;
+}
+
+.keka-theme .text-muted {
+    color: var(--keka-muted) !important;
+}
+
+.keka-theme .text-primary {
+    color: var(--keka-primary) !important;
+}
+
+.keka-theme .btn-light {
+    background-color: var(--keka-card-bg);
+    color: var(--keka-text);
+    border-color: var(--keka-border);
+}
+
+.keka-theme .btn-light:hover {
+    background-color: var(--keka-off-white);
+    color: var(--keka-text);
+}

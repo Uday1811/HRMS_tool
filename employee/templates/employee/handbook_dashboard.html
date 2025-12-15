@@ -1,0 +1,227 @@
+{% extends 'index.html' %}
+{% load i18n static basefilters horillafilters %}
+
+{% block content %}
+<!-- Premium CSS -->
+<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}">
+
+<div class="dashboard-page" style="padding: 2rem;">
+
+    <!-- Header -->
+    <div class="dashboard-header"
+        style="justify-content: center; text-align: center; flex-direction: column; margin-bottom: 3rem;">
+        <div class="info">
+            <h2 style="font-size: 2.5em; margin-bottom: 10px;">{% trans "Employee Handbook" %}</h2>
+            <p style="opacity: 0.7; max-width: 600px; margin: 0 auto;">{% trans "Your guide to company policies,
+                procedures, and culture. Browse the sections below." %}</p>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs"
+        style="display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; flex-wrap: wrap;">
+        <button class="tab-item active" onclick="switchTab(this, 'companyRulesSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="business-outline" class="me-2"></ion-icon> {% trans "Rules" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'conductGuidelinesSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="people-outline" class="me-2"></ion-icon> {% trans "Conduct" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'dressCodeSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="shirt-outline" class="me-2"></ion-icon> {% trans "Dress Code" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'codeOfEthicsSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="shield-checkmark-outline" class="me-2"></ion-icon> {% trans "Ethics" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'itPolicySection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="laptop-outline" class="me-2"></ion-icon> {% trans "IT Policy" %}
+        </button>
+    </div>
+
+    <!-- Content Area -->
+    <div id="handbookContent" style="max-width: 900px; margin: 0 auto;">
+
+        <!-- Company Rules Section -->
+        <div id="companyRulesSection" class="content-section dashboard-card" style="animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="business-outline" class="me-2"></ion-icon>
+                {% trans "Company Rules & Regulations" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Working Hours" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Standard working hours are 9:00 AM to 6:00 PM, Monday to Friday" %}</li>
+                        <li>{% trans "Lunch break is from 1:00 PM to 2:00 PM" %}</li>
+                        <li>{% trans "Flexible working hours may be arranged with manager approval" %}</li>
+                        <li>{% trans "Remote work is permitted up to 2 days per week" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Attendance Policy" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Employees must check in and out using the attendance system" %}</li>
+                        <li>{% trans "Late arrivals (after 9:15 AM) must be reported to HR" %}</li>
+                        <li>{% trans "Excessive tardiness may result in disciplinary action" %}</li>
+                        <li>{% trans "Sick leave requires medical certificate for absences over 2 days" %}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Communication Guidelines" %}</h5>
+                <ul style="opacity: 0.8; line-height: 1.6;">
+                    <li>{% trans "Use official email for all business communications" %}</li>
+                    <li>{% trans "Respond to emails within 24 hours during business days" %}</li>
+                    <li>{% trans "Use appropriate subject lines and professional language" %}</li>
+                    <li>{% trans "CC relevant stakeholders on important communications" %}</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Conduct Guidelines Section -->
+        <div id="conductGuidelinesSection" class="content-section dashboard-card"
+            style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="people-outline" class="me-2"></ion-icon>
+                {% trans "Professional Conduct Guidelines" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Workplace Behavior" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Treat all colleagues with respect and professionalism" %}</li>
+                        <li>{% trans "Maintain confidentiality of sensitive information" %}</li>
+                        <li>{% trans "Report any harassment or discrimination immediately" %}</li>
+                        <li>{% trans "Avoid conflicts of interest in business dealings" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Meeting Etiquette" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Arrive on time for all scheduled meetings" %}</li>
+                        <li>{% trans "Come prepared with necessary materials and information" %}</li>
+                        <li>{% trans "Mute microphones when not speaking in virtual meetings" %}</li>
+                        <li>{% trans "Respect speaking time and allow others to contribute" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dress Code Section -->
+        <div id="dressCodeSection" class="content-section dashboard-card" style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="shirt-outline" class="me-2"></ion-icon>
+                {% trans "Dress Code Policy" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Business Casual (Default)" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Collared shirts, blouses, or sweaters" %}</li>
+                        <li>{% trans "Dress pants, khakis, or knee-length skirts" %}</li>
+                        <li>{% trans "Closed-toe shoes (no flip-flops or sandals)" %}</li>
+                        <li>{% trans "Minimal jewelry and accessories" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Casual Friday" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Jeans in good condition (no rips or tears)" %}</li>
+                        <li>{% trans "Casual shirts, polo shirts, or t-shirts" %}</li>
+                        <li>{% trans "Sneakers or casual shoes acceptable" %}</li>
+                        <li>{% trans "Company branded clothing encouraged" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code of Ethics Section -->
+        <div id="codeOfEthicsSection" class="content-section dashboard-card"
+            style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="shield-checkmark-outline" class="me-2"></ion-icon>
+                {% trans "Code of Ethics" %}
+            </h3>
+            <div class="row" style="text-align: center;">
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                        <ion-icon name="heart-outline" style="font-size: 2rem; color: #ff6b6b;"></ion-icon>
+                        <h5 style="margin: 10px 0;">{% trans "Integrity" %}</h5>
+                        <p style="font-size: 0.9em; opacity: 0.7;">{% trans "Act honestly and transparently" %}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                        <ion-icon name="people-outline" style="font-size: 2rem; color: #4ecdc4;"></ion-icon>
+                        <h5 style="margin: 10px 0;">{% trans "Respect" %}</h5>
+                        <p style="font-size: 0.9em; opacity: 0.7;">{% trans "Value diversity and inclusion" %}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                        <ion-icon name="trophy-outline" style="font-size: 2rem; color: #ffe66d;"></ion-icon>
+                        <h5 style="margin: 10px 0;">{% trans "Excellence" %}</h5>
+                        <p style="font-size: 0.9em; opacity: 0.7;">{% trans "Strive for quality in everything" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IT Policy Section -->
+        <div id="itPolicySection" class="content-section dashboard-card" style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="laptop-outline" class="me-2"></ion-icon>
+                {% trans "IT Usage Policy" %}
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Computer & Internet" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Company computers are for business use primarily" %}</li>
+                        <li>{% trans "Limited personal use is permitted during breaks" %}</li>
+                        <li>{% trans "Do not install unauthorized software" %}</li>
+                        <li>{% trans "Report security incidents immediately to IT" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Password Security" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Use strong passwords with at least 8 characters" %}</li>
+                        <li>{% trans "Include uppercase, lowercase, numbers, and symbols" %}</li>
+                        <li>{% trans "Change passwords every 90 days" %}</li>
+                        <li>{% trans "Never share passwords with colleagues" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function switchTab(btn, sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+
+        // Show selected
+        document.getElementById(sectionId).style.display = 'block';
+
+        // Update buttons
+        document.querySelectorAll('.tab-item').forEach(b => {
+            b.style.background = 'transparent';
+            b.classList.remove('active');
+        });
+        btn.style.background = 'rgba(255,255,255,0.1)';
+        btn.classList.add('active');
+    }
+</script>
+{% endblock content %}

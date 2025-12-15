@@ -1,0 +1,237 @@
+{% extends "index.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+{% include 'employee_nav.html' %}
+
+<div class="oh-wrapper">
+    <div class="team-hierarchy-container">
+        <div class="hierarchy-header">
+            <h1 class="hierarchy-title">
+                <ion-icon name="people-outline"></ion-icon>
+                {% trans "MY TEAMS – PROFILE HIERARCHY" %}
+            </h1>
+            <p class="hierarchy-subtitle">{% trans "Organizational Structure & Team Members" %}</p>
+        </div>
+
+        <div class="hierarchy-content">
+            <!-- Reporting Manager Section -->
+            {% if reporting_manager %}
+            <div class="hierarchy-section manager-section">
+                <div class="section-label">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <span>{% trans "Reporting Manager" %}</span>
+                </div>
+                <div class="profile-cards-container">
+                    <div class="profile-card manager-card" data-employee-id="{{ reporting_manager.id }}">
+                        <div class="card-background"></div>
+                        <div class="card-content">
+                            <div class="profile-image-wrapper">
+                                {% if reporting_manager.employee_profile %}
+                                <img src="{{ reporting_manager.get_avatar }}"
+                                    alt="{{ reporting_manager.get_full_name }}" class="profile-image">
+                                {% else %}
+                                <div class="profile-placeholder">
+                                    <ion-icon name="person-outline"></ion-icon>
+                                </div>
+                                {% endif %}
+                                <div class="status-indicator online"></div>
+                            </div>
+                            <div class="profile-info">
+                                <h3 class="profile-name">{{ reporting_manager.get_full_name }}</h3>
+                                <p class="profile-position">{{ reporting_manager.get_job_position|default:"Manager" }}
+                                </p>
+                                <p class="profile-badge">{{ reporting_manager.badge_id }}</p>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                    <span>{{ reporting_manager.get_mail }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <ion-icon name="business-outline"></ion-icon>
+                                    <span>{{ reporting_manager.get_department|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <a href="{% url 'employee-view-individual' reporting_manager.id %}"
+                                    class="action-btn primary">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                    <span>{% trans "View Profile" %}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Current Employee Section -->
+            <div class="hierarchy-section current-employee-section">
+                <div class="section-label current">
+                    <ion-icon name="person-circle-outline"></ion-icon>
+                    <span>{% trans "You" %}</span>
+                </div>
+                <div class="profile-cards-container">
+                    <div class="profile-card current-card" data-employee-id="{{ employee.id }}">
+                        <div class="card-background current-bg"></div>
+                        <div class="card-content">
+                            <div class="profile-image-wrapper">
+                                {% if employee.employee_profile %}
+                                <img src="{{ employee.get_avatar }}" alt="{{ employee.get_full_name }}"
+                                    class="profile-image">
+                                {% else %}
+                                <div class="profile-placeholder">
+                                    <ion-icon name="person-outline"></ion-icon>
+                                </div>
+                                {% endif %}
+                                <div class="status-indicator online pulse"></div>
+                            </div>
+                            <div class="profile-info">
+                                <h3 class="profile-name">{{ employee.get_full_name }}</h3>
+                                <p class="profile-position">{{ employee.get_job_position|default:"Employee" }}</p>
+                                <p class="profile-badge">{{ employee.badge_id }}</p>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                    <span>{{ employee.get_mail }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <ion-icon name="business-outline"></ion-icon>
+                                    <span>{{ employee.get_department|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <a href="{% url 'employee-profile' %}" class="action-btn primary">
+                                    <ion-icon name="create-outline"></ion-icon>
+                                    <span>{% trans "Edit Profile" %}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peers Section -->
+            {% if peers %}
+            <div class="hierarchy-section peers-section">
+                <div class="section-label">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <span>{% trans "Team Peers" %} ({{ peers|length }})</span>
+                </div>
+                <div class="profile-cards-container peers-grid">
+                    {% for peer in peers %}
+                    <div class="profile-card peer-card" data-employee-id="{{ peer.id }}">
+                        <div class="card-background"></div>
+                        <div class="card-content">
+                            <div class="profile-image-wrapper">
+                                {% if peer.employee_profile %}
+                                <img src="{{ peer.get_avatar }}" alt="{{ peer.get_full_name }}" class="profile-image">
+                                {% else %}
+                                <div class="profile-placeholder">
+                                    <ion-icon name="person-outline"></ion-icon>
+                                </div>
+                                {% endif %}
+                                {% if peer.check_online %}
+                                <div class="status-indicator online"></div>
+                                {% else %}
+                                <div class="status-indicator offline"></div>
+                                {% endif %}
+                            </div>
+                            <div class="profile-info">
+                                <h3 class="profile-name">{{ peer.get_full_name }}</h3>
+                                <p class="profile-position">{{ peer.get_job_position|default:"Employee" }}</p>
+                                <p class="profile-badge">{{ peer.badge_id }}</p>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                    <span>{{ peer.get_mail }}</span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <a href="{% url 'employee-view-individual' peer.id %}" class="action-btn secondary">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Direct Reportees Section -->
+            {% if reportees %}
+            <div class="hierarchy-section reportees-section">
+                <div class="section-label">
+                    <ion-icon name="git-network-outline"></ion-icon>
+                    <span>{% trans "Direct Reportees" %} ({{ reportees|length }})</span>
+                </div>
+                <div class="profile-cards-container reportees-grid">
+                    {% for reportee in reportees %}
+                    <div class="profile-card reportee-card" data-employee-id="{{ reportee.id }}">
+                        <div class="card-background"></div>
+                        <div class="card-content">
+                            <div class="profile-image-wrapper">
+                                {% if reportee.employee_profile %}
+                                <img src="{{ reportee.get_avatar }}" alt="{{ reportee.get_full_name }}"
+                                    class="profile-image">
+                                {% else %}
+                                <div class="profile-placeholder">
+                                    <ion-icon name="person-outline"></ion-icon>
+                                </div>
+                                {% endif %}
+                                {% if reportee.check_online %}
+                                <div class="status-indicator online"></div>
+                                {% else %}
+                                <div class="status-indicator offline"></div>
+                                {% endif %}
+                            </div>
+                            <div class="profile-info">
+                                <h3 class="profile-name">{{ reportee.get_full_name }}</h3>
+                                <p class="profile-position">{{ reportee.get_job_position|default:"Employee" }}</p>
+                                <p class="profile-badge">{{ reportee.badge_id }}</p>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                    <span>{{ reportee.get_mail }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <ion-icon name="business-outline"></ion-icon>
+                                    <span>{{ reportee.get_department|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <a href="{% url 'employee-view-individual' reportee.id %}" class="action-btn secondary">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Empty State -->
+            {% if not reporting_manager and not peers and not reportees %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+                <h3>{% trans "No Team Members Found" %}</h3>
+                <p>{% trans "You don't have any team members or reporting structure set up yet." %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'employee/css/team_hierarchy.css' %}">
+<script src="{% static 'employee/js/team_hierarchy.js' %}"></script>
+
+{% endblock %}

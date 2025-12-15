@@ -1,0 +1,315 @@
+{% extends 'index.html' %}
+{% load i18n static basefilters horillafilters %}
+
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-card mt-4 mb-5">
+        <!-- Finance Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="mb-3">
+                    <ion-icon name="wallet-outline" class="me-2"></ion-icon>
+                    {% trans "Finance Dashboard" %}
+                </h2>
+            </div>
+        </div>
+
+        <!-- Finance Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Current Salary" %}</h6>
+                            <h4 class="mb-0 text-success">$5,500</h4>
+                            <small class="text-muted">{% trans "Monthly" %}</small>
+                        </div>
+                        <ion-icon name="cash-outline" style="font-size: 2rem; color: #28a745;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "YTD Earnings" %}</h6>
+                            <h4 class="mb-0 text-primary">$60,500</h4>
+                            <small class="text-muted">{% trans "Year to Date" %}</small>
+                        </div>
+                        <ion-icon name="trending-up-outline" style="font-size: 2rem; color: #007bff;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Tax Deducted" %}</h6>
+                            <h4 class="mb-0 text-warning">$12,100</h4>
+                            <small class="text-muted">{% trans "This Year" %}</small>
+                        </div>
+                        <ion-icon name="receipt-outline" style="font-size: 2rem; color: #ffc107;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="oh-card p-3 border-left-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">{% trans "Net Pay" %}</h6>
+                            <h4 class="mb-0 text-info">$4,650</h4>
+                            <small class="text-muted">{% trans "Last Month" %}</small>
+                        </div>
+                        <ion-icon name="card-outline" style="font-size: 2rem; color: #17a2b8;"></ion-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finance Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary" onclick="downloadPayslip()">
+                        <ion-icon name="download-outline" class="me-1"></ion-icon>
+                        {% trans "Download Latest Payslip" %}
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="showPayHistory()">
+                        <ion-icon name="time-outline" class="me-1"></ion-icon>
+                        {% trans "Pay History" %}
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showTaxDocuments()">
+                        <ion-icon name="document-text-outline" class="me-1"></ion-icon>
+                        {% trans "Tax Documents" %}
+                    </button>
+                    <button class="btn btn-outline-success" onclick="showBenefits()">
+                        <ion-icon name="shield-checkmark-outline" class="me-1"></ion-icon>
+                        {% trans "Benefits" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="row">
+            <div class="col-12">
+                <div id="financeContent">
+                    <!-- Payslip Download Section -->
+                    <div id="payslipSection" class="content-section">
+                        <h4 class="mb-3">{% trans "Monthly Payslips" %}</h4>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans "Month" %}</th>
+                                                <th>{% trans "Gross Pay" %}</th>
+                                                <th>{% trans "Deductions" %}</th>
+                                                <th>{% trans "Net Pay" %}</th>
+                                                <th>{% trans "Action" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>November 2024</td>
+                                                <td>$5,500</td>
+                                                <td>$850</td>
+                                                <td>$4,650</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="downloadPayslip('2024-11')">
+                                                        <ion-icon name="download-outline"></ion-icon>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>October 2024</td>
+                                                <td>$5,500</td>
+                                                <td>$850</td>
+                                                <td>$4,650</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="downloadPayslip('2024-10')">
+                                                        <ion-icon name="download-outline"></ion-icon>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>September 2024</td>
+                                                <td>$5,500</td>
+                                                <td>$850</td>
+                                                <td>$4,650</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="downloadPayslip('2024-09')">
+                                                        <ion-icon name="download-outline"></ion-icon>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="salary-breakdown">
+                                    <h5>{% trans "Current Salary Breakdown" %}</h5>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Basic Salary" %}:</span>
+                                        <span>$4,000</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Allowances" %}:</span>
+                                        <span>$1,000</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Bonus" %}:</span>
+                                        <span>$500</span>
+                                    </div>
+                                    <hr>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span><strong>{% trans "Gross Pay" %}:</strong></span>
+                                        <span><strong>$5,500</strong></span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Tax" %}:</span>
+                                        <span class="text-danger">-$550</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Insurance" %}:</span>
+                                        <span class="text-danger">-$200</span>
+                                    </div>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span>{% trans "Other Deductions" %}:</span>
+                                        <span class="text-danger">-$100</span>
+                                    </div>
+                                    <hr>
+                                    <div class="breakdown-item d-flex justify-content-between mb-2">
+                                        <span><strong>{% trans "Net Pay" %}:</strong></span>
+                                        <span class="text-success"><strong>$4,650</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tax Documents Section -->
+                    <div id="taxDocumentsSection" class="content-section d-none">
+                        <h4 class="mb-3">{% trans "Tax Documents" %}</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="document-list">
+                                    <div class="document-item d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded">
+                                        <div>
+                                            <h6 class="mb-1">{% trans "Form W-2 (2024)" %}</h6>
+                                            <small class="text-muted">{% trans "Wage and Tax Statement" %}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary">
+                                            <ion-icon name="download-outline"></ion-icon>
+                                        </button>
+                                    </div>
+                                    <div class="document-item d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded">
+                                        <div>
+                                            <h6 class="mb-1">{% trans "Form 1099 (2024)" %}</h6>
+                                            <small class="text-muted">{% trans "Miscellaneous Income" %}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary">
+                                            <ion-icon name="download-outline"></ion-icon>
+                                        </button>
+                                    </div>
+                                    <div class="document-item d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded">
+                                        <div>
+                                            <h6 class="mb-1">{% trans "Tax Summary (2023)" %}</h6>
+                                            <small class="text-muted">{% trans "Annual Tax Summary" %}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary">
+                                            <ion-icon name="download-outline"></ion-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="tax-summary">
+                                    <h5>{% trans "2024 Tax Summary" %}</h5>
+                                    <canvas id="taxChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary { border-left: 4px solid #007bff !important; }
+.border-left-success { border-left: 4px solid #28a745 !important; }
+.border-left-warning { border-left: 4px solid #ffc107 !important; }
+.border-left-info { border-left: 4px solid #17a2b8 !important; }
+
+.content-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+</style>
+
+<script>
+function showPayHistory() {
+    hideAllSections();
+    document.getElementById('payslipSection').classList.remove('d-none');
+}
+
+function showTaxDocuments() {
+    hideAllSections();
+    document.getElementById('taxDocumentsSection').classList.remove('d-none');
+    initTaxChart();
+}
+
+function showBenefits() {
+    hideAllSections();
+    // Show benefits content
+}
+
+function hideAllSections() {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('d-none');
+    });
+}
+
+function downloadPayslip(month) {
+    if (month) {
+        alert(`{% trans "Downloading payslip for" %} ${month}`);
+    } else {
+        alert('{% trans "Downloading latest payslip..." %}');
+    }
+}
+
+function initTaxChart() {
+    const ctx = document.getElementById('taxChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['{% trans "Federal Tax" %}', '{% trans "State Tax" %}', '{% trans "Social Security" %}', '{% trans "Medicare" %}'],
+            datasets: [{
+                data: [8500, 2100, 1200, 400],
+                backgroundColor: ['#dc3545', '#fd7e14', '#20c997', '#6f42c1'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Initialize default view
+document.addEventListener('DOMContentLoaded', function() {
+    showPayHistory();
+});
+</script>
+{% endblock content %}

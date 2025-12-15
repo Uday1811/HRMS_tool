@@ -1,0 +1,102 @@
+{% extends 'index.html' %}
+{% load static i18n %}
+
+{% block content %}
+<!-- Premium CSS -->
+<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}?v=2.0">
+
+<div class="dashboard-page" style="padding: 2rem;">
+
+    <div class="dashboard-header" style="justify-content: space-between; margin-bottom: 2rem;">
+        <div class="info">
+            <h2>{% trans "My Payslips" %}</h2>
+            <p>{% trans "View and download your monthly payslips" %}</p>
+        </div>
+        {% if perms.payroll.add_employeepayslip %}
+        <a href="{% url 'upload-payslip' %}" class="btn btn-primary"
+            style="background: var(--color-primary); border: none;">
+            <i class="ion-upload mr-2"></i> {% trans "Upload Payslip" %}
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-grid">
+        {% for payslip in payslips %}
+        <div class="dashboard-card payslip-row" onclick="this.classList.toggle('expanded')" style="display: block;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="summary">
+                    <strong style="font-size: 1.1em; color: var(--color-primary);">{% trans "Payslip" %}</strong>
+                    {% if perms.payroll.add_employeepayslip %}
+                    <span style="margin-left: 10px; color: var(--color-text);">{{ payslip.employee }}</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span class="badge">{{ payslip.uploaded_at|date:"M d, Y" }}</span>
+                    <i class="ion-chevron-down" style="opacity: 0.5;"></i>
+                </div>
+            </div>
+
+            <div class="details"
+                style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="margin: 0;"><strong>Uploaded:</strong> {{ payslip.uploaded_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{{ payslip.document.url }}" class="button"
+                            style="background: var(--color-accent); padding: 5px 15px; border-radius: 5px; color: white; text-decoration: none;"
+                            target="_blank" download>
+                            <i class="ion-archive"></i> {% trans "Download PDF" %}
+                        </a>
+                        {% if perms.payroll.delete_employeepayslip %}
+                        <a href="{% url 'delete-payslip' payslip.id %}" class="button"
+                            style="background: #e74c3c; padding: 5px 10px; border-radius: 5px; color: white; text-decoration: none;"
+                            onclick="return confirm('Are you sure?')">
+                            <i class="ion-trash-a"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="dashboard-card" style="text-align: center; opacity: 0.7;">
+            <p>{% trans "No payslips found." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if payslips.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        {% if payslips.has_previous %}
+        <a href="?page={{ payslips.previous_page_number }}" class="btn btn-outline-light btn-sm mr-2">{% trans
+            "Previous" %}</a>
+        {% endif %}
+        <span class="align-self-center text-white mx-2">
+            {% trans "Page" %} {{ payslips.number }} {% trans "of" %} {{ payslips.paginator.num_pages }}
+        </span>
+        {% if payslips.has_next %}
+        <a href="?page={{ payslips.next_page_number }}" class="btn btn-outline-light btn-sm ml-2">{% trans "Next" %}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // Simple toggler for payslip rows
+    document.querySelectorAll('.payslip-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const details = row.querySelector('.details');
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                row.style.background = 'rgba(255,255,255,0.12)';
+            } else {
+                details.style.display = 'none';
+                row.style.background = '';
+            }
+        });
+    });
+</script>
+{% endblock %}

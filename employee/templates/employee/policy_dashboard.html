@@ -1,0 +1,244 @@
+{% extends 'index.html' %}
+{% load i18n static basefilters horillafilters %}
+
+{% block content %}
+<!-- Premium CSS -->
+<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}">
+
+<div class="dashboard-page" style="padding: 2rem;">
+
+    <!-- Header -->
+    <div class="dashboard-header"
+        style="justify-content: center; text-align: center; flex-direction: column; margin-bottom: 3rem;">
+        <div class="info">
+            <h2 style="font-size: 2.5em; margin-bottom: 10px;">{% trans "Company Policies" %}</h2>
+            <p style="opacity: 0.7; max-width: 600px; margin: 0 auto;">{% trans "Important policies and terms that
+                govern our workplace." %}</p>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs"
+        style="display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; flex-wrap: wrap;">
+        <button class="tab-item active" onclick="switchTab(this, 'leavePolicySection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="calendar-outline" class="me-2"></ion-icon> {% trans "Leaves" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'hrPolicySection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="people-outline" class="me-2"></ion-icon> {% trans "HR Policy" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'attendanceRulesSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="time-outline" class="me-2"></ion-icon> {% trans "Attendance" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'remoteWorkPolicySection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="home-outline" class="me-2"></ion-icon> {% trans "Remote Work" %}
+        </button>
+        <button class="tab-item" onclick="switchTab(this, 'privacyTermsSection')"
+            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
+            <ion-icon name="shield-outline" class="me-2"></ion-icon> {% trans "Privacy" %}
+        </button>
+    </div>
+
+    <!-- Content Area -->
+    <div id="policyContent" style="max-width: 900px; margin: 0 auto;">
+
+        <!-- Leave Policy Section -->
+        <div id="leavePolicySection" class="content-section dashboard-card" style="animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="calendar-outline" class="me-2"></ion-icon>
+                {% trans "Leave Policy" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Annual Leave" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "All full-time employees are entitled to 25 days of annual leave per year" %}</li>
+                        <li>{% trans "Part-time employees receive pro-rated leave based on working hours" %}</li>
+                        <li>{% trans "Leave accrues at 2.08 days per month of service" %}</li>
+                        <li>{% trans "Maximum carry-over of 5 days to the following year" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Sick Leave" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "12 days of sick leave per calendar year" %}</li>
+                        <li>{% trans "Medical certificate required for absences over 2 consecutive days" %}</li>
+                        <li>{% trans "Unused sick leave does not carry over to the next year" %}</li>
+                        <li>{% trans "Family care leave available for immediate family members" %}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Application Process" %}</h5>
+                <ul style="opacity: 0.8; line-height: 1.6;">
+                    <li>{% trans "Submit leave requests at least 2 weeks in advance" %}</li>
+                    <li>{% trans "Emergency leave can be applied retroactively with proper documentation" %}</li>
+                    <li>{% trans "Manager approval required for all leave requests" %}</li>
+                    <li>{% trans "HR approval required for leave exceeding 5 consecutive days" %}</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- HR Policy Section -->
+        <div id="hrPolicySection" class="content-section dashboard-card" style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="people-outline" class="me-2"></ion-icon>
+                {% trans "Human Resources Policy" %}
+            </h3>
+
+            <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Equal Opportunity" %}</h5>
+            <p style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                {% trans "We are committed to providing equal employment opportunities to all employees and applicants
+                regardless of race, color, religion, gender, sexual orientation, age, national origin, disability, or
+                veteran status." %}
+            </p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Anti-Harassment" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Zero tolerance for harassment, discrimination, or bullying" %}</li>
+                        <li>{% trans "All complaints will be investigated promptly and confidentially" %}</li>
+                        <li>{% trans "Retaliation against complainants is strictly prohibited" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Performance" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Annual performance reviews for all employees" %}</li>
+                        <li>{% trans "Quarterly check-ins with direct managers" %}</li>
+                        <li>{% trans "Goal setting and development planning process" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Rules Section -->
+        <div id="attendanceRulesSection" class="content-section dashboard-card"
+            style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="time-outline" class="me-2"></ion-icon>
+                {% trans "Attendance Rules & Regulations" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Working Hours" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Standard working hours: 9:00 AM - 6:00 PM" %}</li>
+                        <li>{% trans "Core hours: 10:00 AM - 4:00 PM" %}</li>
+                        <li>{% trans "Flexible start time between 8:00 AM - 10:00 AM" %}</li>
+                        <li>{% trans "40 hours per week minimum requirement" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Punctuality" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Grace period of 15 minutes for late arrival" %}</li>
+                        <li>{% trans "3 late arrivals in a month triggers counseling" %}</li>
+                        <li>{% trans "Excessive tardiness may result in disciplinary action" %}</li>
+                        <li>{% trans "Early departure requires manager approval" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remote Work Policy Section -->
+        <div id="remoteWorkPolicySection" class="content-section dashboard-card"
+            style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="home-outline" class="me-2"></ion-icon>
+                {% trans "Remote Work Policy" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Eligibility" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
+                        <li>{% trans "Employees with at least 6 months of service" %}</li>
+                        <li>{% trans "Satisfactory performance rating in last review" %}</li>
+                        <li>{% trans "Role suitable for remote work" %}</li>
+                        <li>{% trans "Manager approval required" %}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Guidelines" %}</h5>
+                    <ul style="opacity: 0.8; line-height: 1.6;">
+                        <li>{% trans "Maximum 2 days per week remote work" %}</li>
+                        <li>{% trans "Must maintain same working hours as office days" %}</li>
+                        <li>{% trans "Reliable internet connection required" %}</li>
+                        <li>{% trans "Available for video calls during core hours" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy & Terms Section -->
+        <div id="privacyTermsSection" class="content-section dashboard-card"
+            style="display:none; animation: fadeIn 0.5s;">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <ion-icon name="shield-outline" class="me-2"></ion-icon>
+                {% trans "Privacy Policy & Terms" %}
+            </h3>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
+                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "Data Privacy" %}</h5>
+                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
+                            <li>{% trans "GDPR compliant" %}</li>
+                            <li>{% trans "Legitimate business purpose only" %}</li>
+                            <li>{% trans "Data retention limits" %}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
+                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "Confidentiality" %}</h5>
+                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
+                            <li>{% trans "NDA required" %}</li>
+                            <li>{% trans "No unauthorized sharing" %}</li>
+                            <li>{% trans "Trade secrets protection" %}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
+                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "IP Rights" %}</h5>
+                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
+                            <li>{% trans "Work belongs to company" %}</li>
+                            <li>{% trans "Inventions assigned" %}</li>
+                            <li>{% trans "Disclose conflicts" %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function switchTab(btn, sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+
+        // Show selected
+        document.getElementById(sectionId).style.display = 'block';
+
+        // Update buttons
+        document.querySelectorAll('.tab-item').forEach(b => {
+            b.style.background = 'transparent';
+            b.classList.remove('active');
+        });
+        btn.style.background = 'rgba(255,255,255,0.1)';
+        btn.classList.add('active');
+    }
+</script>
+{% endblock content %}

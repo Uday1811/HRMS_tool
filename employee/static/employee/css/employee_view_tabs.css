@@ -1,0 +1,83 @@
+/* Employee View Tabs */
+.employee-view-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0;
+}
+
+.view-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6b7280;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: -2px;
+}
+
+.view-tab-btn ion-icon {
+    font-size: 1.5rem;
+}
+
+.view-tab-btn:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.view-tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: rgba(102, 126, 234, 0.08);
+}
+
+.view-tab-btn.active ion-icon {
+    color: #667eea;
+}
+
+/* Hierarchy View Container */
+.hierarchy-view-container {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Tabs */
+@media (max-width: 768px) {
+    .employee-view-tabs {
+        flex-direction: column;
+        gap: 0;
+        border-bottom: none;
+    }
+
+    .view-tab-btn {
+        width: 100%;
+        justify-content: center;
+        border-bottom: 1px solid #e5e7eb;
+        border-left: 3px solid transparent;
+        bottom: 0;
+    }
+
+    .view-tab-btn.active {
+        border-bottom-color: #e5e7eb;
+        border-left-color: #667eea;
+    }
+}
