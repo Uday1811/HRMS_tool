@@ -77,6 +77,7 @@ from employee.forms import (
     EmployeeGeneralSettingPrefixForm,
     EmployeeNoteForm,
     EmployeeTagForm,
+    EmployeeIDProofForm,
     EmployeeWorkInformationForm,
     EmployeeWorkInformationUpdateForm,
     excel_columns,
@@ -3694,13 +3695,20 @@ def employee_dashboard(request):
             return redirect("employee-view")
 
 
+    # -- Attendance Data Integration --
+    
+    # Fetch Shift Schedule
+    shift_schedule = employee.get_shift_schedule()
+    shift_start = shift_schedule.start_time if shift_schedule else None
+    shift_end = shift_schedule.end_time if shift_schedule else None
+
     context = {
         "employee": employee,
         "current_date": datetime.today(),
         "now": timezone.now(),
+        "shift_start": shift_start,
+        "shift_end": shift_end,
     }
-
-    # -- Attendance Data Integration --
 
     # -- Attendance Data Integration --
     try:
@@ -3749,6 +3757,9 @@ def employee_dashboard(request):
                      diff = first_in.timestamp - shift_start
                      arrival_status = f"{int(diff.seconds/60)}m Late"
             
+            # Filter out auto logs for display
+            display_logs = [log for log in daily_logs if log.action != 'auto']
+
             grouped_logs.append({
                 "date": date_key,
                 "first_in": first_in,
@@ -3756,12 +3767,17 @@ def employee_dashboard(request):
                 "effective_hours": f"{eff_hrs}:{eff_mins:02d} hrs",
                 "gross_hours": f"{eff_hrs}:{eff_mins:02d} hrs", # Same for now
                 "arrival": arrival_status,
-                "logs": daily_logs
+                "logs": display_logs
             })
 
-        # 3. Last action for button state
-        last_log = AttendanceLog.objects.filter(employee=employee).order_by('timestamp').last()
+        # 3. Last action for button state (Ignore auto logs to find true state)
+        last_log = AttendanceLog.objects.filter(employee=employee).exclude(action='auto').order_by('timestamp').last()
         last_attendance_action = last_log.action if last_log else 'out'
+        
+        last_in_time = None
+        if last_attendance_action == 'in' and last_log:
+             last_in_time = last_log.timestamp.isoformat()
+
 
         # 4. Calculate Stats (Avg Hrs / On Time)
         total_effective_seconds = 0
@@ -3787,6 +3803,7 @@ def employee_dashboard(request):
 
         context["attendance_logs"] = grouped_logs
         context["last_attendance_action"] = last_attendance_action
+        context["last_in_time"] = last_in_time
         context["avg_hours"] = f"{avg_h:02d}:{avg_m:02d}"
         context["on_time_pct"] = str(on_time_percentage)
         context["day_index"] = datetime.today().weekday() # 0=Monday, 6=Sunday
@@ -3805,8 +3822,11 @@ def employee_dashboard(request):
 @login_required
 def apply_leave_api(request):
     """
-    API endpoint for applying leave with strict business rules
+    API endpoint for applying leave with strict business rules and UI handling
     """
+    if request.method == 'GET':
+        return render(request, 'employee/leave/apply_modal.html')
+
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
     
@@ -3829,10 +3849,11 @@ def apply_leave_api(request):
             }, status=400)
         
         # Validate leave type
-        if leave_type not in ['paid', 'sick']:
+        valid_types = ['cl', 'sl']
+        if leave_type not in valid_types:
             return JsonResponse({
                 'success': False, 
-                'message': 'Invalid leave type. Only "paid" or "sick" allowed'
+                'message': f'Invalid leave type. Allowed: {", ".join(valid_types)}'
             }, status=400)
         
         from datetime import datetime
@@ -3851,7 +3872,7 @@ def apply_leave_api(request):
             else:
                 total_days = total_days - 0.5
         
-        # Check leave balance
+        # Check leave balance and Split Logic
         try:
             balance = EmployeeLeaveBalance.objects.get(
                 employee=employee,
@@ -3859,47 +3880,74 @@ def apply_leave_api(request):
                 year=current_year
             )
             
-            # If insufficient balance, convert to LOP
+            # 7. Insufficient Leave Scenario: Split into Available + LOP
             if not balance.can_take_leave(total_days):
-                if leave_type == 'paid':
-                    # Check if we can use remaining paid leave + LOP
-                    remaining_paid = balance.available_days
-                    lop_days = total_days - remaining_paid
+                available_days = balance.available_days
+                lop_days = total_days - available_days
+                
+                # We need to split the date range. This is complex because of weekends/holidays, 
+                # but for now we will split linearly.
+                
+                # 1. Create Request for Available Days (if any)
+                if available_days > 0:
+                    # Calculate end date for the first part
+                    # Note: This is a simplification. Real world needs holiday skipping.
+                    from datetime import timedelta
+                    s1_end = start_date_obj + timedelta(days=available_days - 1)
                     
-                    return JsonResponse({
-                        'success': False,
-                        'message': f'Insufficient paid leave balance. Available: {remaining_paid} days, Requested: {total_days} days. {lop_days} days will be LOP (unpaid). Do you want to proceed?',
-                        'requires_confirmation': True,
-                        'lop_days': lop_days,
-                        'paid_days': remaining_paid
-                    })
-                else:  # sick leave
-                    return JsonResponse({
-                        'success': False,
-                        'message': f'Insufficient sick leave balance. Available: {balance.available_days} days, Requested: {total_days} days'
-                    }, status=400)
-            
+                    req1 = EmployeeLeaveRequest.objects.create(
+                        employee=employee,
+                        leave_type=leave_type,
+                        start_date=start_date_obj,
+                        end_date=s1_end,
+                        duration=duration, # Assumes full days for simplification if splitting
+                        requested_days=available_days,
+                        reason=f"{reason} (Auto-split: Paid Portion)",
+                        status='pending',
+                        is_emergency=emergency
+                    )
+                    
+                    # Update start date for LOP portion
+                    start_date_obj = s1_end + timedelta(days=1)
+                
+                # 2. Create Request for LOP Days
+                req2 = EmployeeLeaveRequest.objects.create(
+                    employee=employee,
+                    leave_type='lop',
+                    start_date=start_date_obj,
+                    end_date=end_date_obj,
+                    duration=duration,
+                    requested_days=lop_days,
+                    reason=f"{reason} (Auto-split: LOP Portion due to insufficient balance)",
+                    status='pending',
+                    is_emergency=emergency
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Leave request processed. due to insufficient balance, it was split: {available_days} days {leave_type.upper()} and {lop_days} days LOP.'
+                })
+
         except EmployeeLeaveBalance.DoesNotExist:
-            # No balance found, create one with 0 balance
-            balance = EmployeeLeaveBalance.objects.create(
+            # No balance found, everything is LOP
+            EmployeeLeaveRequest.objects.create(
                 employee=employee,
-                leave_type=leave_type,
-                year=current_year,
-                available_days=0,
-                used_days=0,
-                total_accrued=0
+                leave_type='lop',
+                start_date=start_date_obj,
+                end_date=end_date_obj,
+                duration=duration,
+                requested_days=total_days,
+                reason=f"{reason} (Auto-converted to LOP)",
+                status='pending',
+                is_emergency=emergency
             )
-            
-            # All days will be LOP
+             
             return JsonResponse({
-                'success': False,
-                'message': f'No {leave_type} leave balance available. All {total_days} days will be LOP (unpaid). Do you want to proceed?',
-                'requires_confirmation': True,
-                'lop_days': total_days,
-                'paid_days': 0
+                'success': True,
+                'message': f'No {leave_type} balance found. Request submitted as Loss of Pay (LOP).'
             })
         
-        # Create leave request with pending status (manager must approve)
+        # Standard Request (Sufficient Balance)
         leave_request = EmployeeLeaveRequest.objects.create(
             employee=employee,
             leave_type=leave_type,
@@ -3908,7 +3956,7 @@ def apply_leave_api(request):
             duration=duration,
             requested_days=total_days,
             reason=reason,
-            status='pending',  # Always pending until manager approves
+            status='pending',
             is_emergency=emergency
         )
         
@@ -4434,3 +4482,60 @@ def holiday_calendar(request):
     }
     return render(request, "employee/leave/holiday_calendar.html", context)
 
+
+@login_required
+def employee_id_proof_view(request, emp_id):
+    """
+    View to handle Employee ID Proofs (Aadhar, PAN).
+    """
+    employee = get_object_or_404(Employee, id=emp_id)
+    
+    # Permission Check
+    is_hr = request.user.has_perm('employee.change_employee')
+    is_own_profile = False
+    try:
+        is_own_profile = (request.user.employee_get.id == employee.id)
+    except:
+        pass
+        
+    if not (is_hr or is_own_profile):
+         return HttpResponse(_("Unauthorized Access"), status=403)
+
+    if hasattr(employee, 'id_proof'):
+        proof = employee.id_proof
+    else:
+        proof = None
+    
+    if request.method == 'POST':
+        # HR Delete Action
+        if 'delete_proof' in request.POST:
+            if is_hr and proof:
+                proof.delete()
+                messages.success(request, _("ID Proofs deleted successfully."))
+                return HttpResponse("<script>window.location.reload();</script>")
+            else:
+                messages.error(request, _("Unauthorized action."))
+                
+        # Upload/Update Action
+        else:
+            if proof and not is_hr:
+                 messages.error(request, _("Submitted proofs cannot be changed. Please contact HR."))
+            else:
+                form = EmployeeIDProofForm(request.POST, request.FILES, instance=proof)
+                if form.is_valid():
+                    p = form.save(commit=False)
+                    p.employee = employee
+                    p.is_locked = True
+                    p.save()
+                    messages.success(request, _("ID Proofs submitted successfully."))
+                    return HttpResponse("<script>window.location.reload();</script>")
+    
+    form = EmployeeIDProofForm(instance=proof)
+    
+    context = {
+        'employee': employee,
+        'proof': proof,
+        'form': form,
+        'is_hr': is_hr,
+    }
+    return render(request, "employee/tabs/id_proof_tab.html", context)

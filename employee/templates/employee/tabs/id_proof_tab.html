@@ -1,0 +1,113 @@
+{% load i18n static %}
+<div class="details-card">
+    <div class="section-title-row">
+        <ion-icon name="id-card-outline" style="font-size:1.5rem; color:var(--accent-blue);"></ion-icon>
+        <h2 class="section-title">{% trans "Identity Proofs" %}</h2>
+    </div>
+
+    {% if proof %}
+    <div class="info-grid" style="grid-template-columns: 1fr;">
+
+        <div style="display:flex; gap: 2rem; flex-wrap: wrap;">
+            <!-- Aadhar Front -->
+            <div class="proof-card">
+                <h4 style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">{% trans "Aadhar Front"
+                    %}</h4>
+                {% if proof.aadhar_front %}
+                <a href="{{ proof.aadhar_front.url }}" target="_blank">
+                    <img src="{{ proof.aadhar_front.url }}" alt="Aadhar Front"
+                        style="max-width:300px; width: 100%; border-radius: 8px; border: 1px solid #ddd; object-fit: contain;">
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Aadhar Back -->
+            <div class="proof-card">
+                <h4 style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">{% trans "Aadhar Back"
+                    %}</h4>
+                {% if proof.aadhar_back %}
+                <a href="{{ proof.aadhar_back.url }}" target="_blank">
+                    <img src="{{ proof.aadhar_back.url }}" alt="Aadhar Back"
+                        style="max-width:300px; width: 100%; border-radius: 8px; border: 1px solid #ddd; object-fit: contain;">
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- PAN -->
+            <div class="proof-card">
+                <h4 style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">{% trans "PAN Card" %}
+                </h4>
+                {% if proof.pan_card %}
+                <a href="{{ proof.pan_card.url }}" target="_blank">
+                    <img src="{{ proof.pan_card.url }}" alt="PAN Card"
+                        style="max-width:300px; width: 100%; border-radius: 8px; border: 1px solid #ddd; object-fit: contain;">
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if is_hr %}
+        <div style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+            <p class="text-secondary" style="display: flex; align-items: center; gap: 5px;">
+                <ion-icon name="alert-circle-outline"></ion-icon> {% trans "HR Controls" %}
+            </p>
+            <form method="post" enctype="multipart/form-data" hx-post="{% url 'employee-id-proof' employee.id %}"
+                hx-target="#idproof" onsubmit="return confirm('{% trans " Are you sure you want to delete these
+                documents?" %}');">
+                {% csrf_token %}
+                <input type="hidden" name="delete_proof" value="true">
+                <button type="submit" class="oh-btn oh-btn--danger"
+                    style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    <ion-icon name="trash-outline"></ion-icon> {% trans "Delete & Reset" %}
+                </button>
+                <p class="text-muted small mt-2" style="font-size: 0.85em; opacity: 0.7;">{% trans "Deleting will allow
+                    the employee to upload again." %}</p>
+            </form>
+        </div>
+        {% else %}
+        <div style="margin-top: 1rem;">
+            <span class="badge badge-success"
+                style="background: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; display: inline-flex; align-items: center; gap: 5px;">
+                <ion-icon name="checkmark-circle"></ion-icon> {% trans "Verified & Locked" %}
+            </span>
+        </div>
+        {% endif %}
+
+    </div>
+    {% else %}
+    <form method="post" enctype="multipart/form-data" hx-post="{% url 'employee-id-proof' employee.id %}"
+        hx-target="#idproof" id="idproof-form">
+        {% csrf_token %}
+
+        <div class="oh-alert-container">
+            <div class="oh-alert oh-alert--warning"
+                style="margin-bottom: 2rem; background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; display: flex; align-items: center; gap: 10px;">
+                <ion-icon name="warning-outline" style="font-size: 1.2rem;"></ion-icon>
+                {% trans "Note: Once submitted, these documents cannot be changed or deleted." %}
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-group">
+                <label class="info-label">{% trans "Aadhar Card (Front)" %}</label>
+                <input type="file" name="aadhar_front" accept="image/*" class="oh-input w-100" required>
+            </div>
+            <div class="info-group">
+                <label class="info-label">{% trans "Aadhar Card (Back)" %}</label>
+                <input type="file" name="aadhar_back" accept="image/*" class="oh-input w-100" required>
+            </div>
+            <div class="info-group">
+                <label class="info-label">{% trans "PAN Card" %}</label>
+                <input type="file" name="pan_card" accept="image/*" class="oh-input w-100" required>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <button type="submit" class="oh-btn oh-btn--primary"
+                style="background: var(--accent-blue); color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <ion-icon name="cloud-upload-outline"></ion-icon> {% trans "Submit Documents" %}
+            </button>
+        </div>
+    </form>
+    {% endif %}
+</div>

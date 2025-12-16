@@ -55,6 +55,7 @@ from attendance.models import (
     AttendanceLateComeEarlyOut,
     AttendanceOverTime,
     AttendanceValidationCondition,
+    AttendanceLog,
 )
 from base.methods import choosesubordinates, filtersubordinates, sortby
 from base.models import Department, EmployeeShiftDay, EmployeeShiftSchedule
@@ -1615,3 +1616,5 @@ def clock_out_api(request):
             'success': False,
             'message': str(e)
         })
+
+

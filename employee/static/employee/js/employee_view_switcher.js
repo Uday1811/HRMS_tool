@@ -32,7 +32,7 @@ function switchEmployeeView(viewType) {
 // Restore view preference on page load
 document.addEventListener('DOMContentLoaded', function () {
     const savedView = localStorage.getItem('employeeViewPreference');
-    if (savedView === 'hierarchy') {
-        switchEmployeeView('hierarchy');
+    if (savedView) {
+        switchEmployeeView(savedView);
     }
 });

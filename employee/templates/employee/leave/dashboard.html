@@ -2,149 +2,126 @@
 {% load static i18n %}
 
 {% block content %}
-<!-- Premium CSS -->
-<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}?v=2.1">
+<link rel="stylesheet" href="{% static 'employee/css/keka_dashboard.css' %}?v=1.0">
 
-<div class="dashboard-page" style="padding: 2rem;">
+<div class="keka-dashboard">
 
-    <!-- Header -->
-    <div class="dashboard-header" style="justify-content: space-between; margin-bottom: 2rem;">
+    <!-- Header Section -->
+    <div class="keka-header">
         <div>
-            <h2>{% trans "Leave Management" %}</h2>
-            <p>{% trans "Track and manage your leave requests" %}</p>
+            <h2>{% trans "Leave Dashboard" %}</h2>
+            <div class="subtitle">{% trans "View and manage your leave requests and balances." %}</div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <!-- Theme Toggle -->
-            <button class="button" id="themeToggle"
-                style="background: var(--color-surface-trans); color: var(--color-text); padding: 10px; border-radius: 50%; width: 40px; height: 40px; border: 1px solid var(--color-border);"
-                title="Toggle Theme">
-                <i class="ion-ios-sunny-outline" id="themeIcon"></i>
+        <div class="keka-actions">
+            <!-- Apply Leave Action -->
+            <button class="keka-btn keka-btn-primary" hx-get="{% url 'apply-leave-api' %}"
+                hx-target="#objectCreateModalTarget" onclick="$('#objectCreateModal').addClass('oh-modal--show')">
+                <i class="ion-plus-round"></i> {% trans "Apply Leave" %}
             </button>
-
-
-
-            <button class="button"
-                style="background: var(--color-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;"
-                hx-get="{% url 'apply-leave-api' %}" hx-target="#objectCreateModalTarget"
-                onclick="$('#objectCreateModal').addClass('oh-modal--show')">
-                <i class="ion-plus-round mr-2"></i> {% trans "+ Apply Leave" %}
-            </button>
-            <a href="{% url 'holiday-calendar' %}" class="button"
-                style="background: var(--color-surface); color: var(--color-text); padding: 10px 20px; border-radius: 8px; text-decoration: none;">
-                <i class="ion-calendar mr-2"></i> {% trans "Holiday Calendar" %}
+            <a href="{% url 'holiday-calendar' %}" class="keka-btn keka-btn-outline">
+                <i class="ion-calendar"></i> {% trans "Holidays" %}
             </a>
-            <a href="#" class="button"
-                style="background: var(--color-surface); color: var(--color-text); padding: 10px 20px; border-radius: 8px; text-decoration: none;">
-                <i class="ion-android-time mr-2"></i> {% trans "History" %}
+            <a href="#" class="keka-btn keka-btn-outline">
+                <i class="ion-clock"></i> {% trans "History" %}
             </a>
         </div>
     </div>
 
-    <!-- Clock Widget -->
-    <div style="margin-bottom: 2rem;">
-        <div hx-get="{% url 'render-clock-widget' %}" hx-trigger="load" hx-swap="outerHTML">
-            <!-- Placeholder -->
-            <div class="premium-clock-card"
-                style="display:flex; justify-content:center; align-items:center; min-height:150px;">
-                {% trans "Loading Attendance..." %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Cards Grid -->
-    <div class="dashboard-grid"
-        style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+    <!-- Stats Grid -->
+    <div class="keka-stats-grid">
         <!-- Casual Leave -->
-        <div class="dashboard-card" style="position: relative; overflow: hidden;">
-            <h3 style="font-size: 1.1em; color: #667eea;">{% trans "Casual Leave" %}</h3>
-            <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">{{ cl_balance.available|default:0 }}</div>
-            <p style="opacity: 0.7;">{% trans "Available" %} / {{ cl_balance.total|default:0 }}</p>
-            <i class="ion-coffee"
-                style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
+        <div class="keka-card card-cl">
+            <h4>{% trans "Casual Leave" %}</h4>
+            <div class="keka-stat-value">{{ cl_balance.available }}</div>
+            <div class="keka-stat-meta">{% trans "Available" %} / {{ cl_balance.total }}</div>
+            <i class="ion-coffee bg-icon"></i>
         </div>
 
         <!-- Sick Leave -->
-        <div class="dashboard-card" style="position: relative; overflow: hidden;">
-            <h3 style="font-size: 1.1em; color: #FFB75E;">{% trans "Sick Leave" %}</h3>
-            <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">{{ sl_balance.available|default:0 }}</div>
-            <p style="opacity: 0.7;">{% trans "Available" %} / {{ sl_balance.total|default:0 }}</p>
-            <i class="ion-thermometer"
-                style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
+        <div class="keka-card card-sl">
+            <h4>{% trans "Sick Leave" %}</h4>
+            <div class="keka-stat-value">{{ sl_balance.available }}</div>
+            <div class="keka-stat-meta">{% trans "Available" %} / {{ sl_balance.total }}</div>
+            <i class="ion-thermometer bg-icon"></i>
         </div>
 
-        <!-- Earned Leave -->
-        <div class="dashboard-card" style="position: relative; overflow: hidden;">
-            <h3 style="font-size: 1.1em; color: #11998e;">{% trans "Earned Leave" %}</h3>
-            <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">{{ el_balance.available|default:0 }}</div>
-            <p style="opacity: 0.7;">{% trans "Available" %} / {{ el_balance.total|default:0 }}</p>
-            <i class="ion-plane"
-                style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
-        </div>
-
-        <!-- Pending -->
-        <div class="dashboard-card" style="position: relative; overflow: hidden;">
-            <h3 style="font-size: 1.1em; color: #FF5F6D;">{% trans "Pending" %}</h3>
-            <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">{{ pending_requests|default:0 }}</div>
-            <p style="opacity: 0.7;">{% trans "Awaiting Approval" %}</p>
-            <i class="ion-clock"
-                style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
+        <!-- LOP / Penalty -->
+        <div class="keka-card card-lop">
+            <h4>{% trans "Unpaid (LOP)" %}</h4>
+            <div class="keka-stat-value" style="color: #FF5F6D;">{{ lop_days|default:0 }}</div>
+            <div class="keka-stat-meta">{% trans "Days Taken" %}</div>
+            <i class="ion-alert-circled bg-icon"></i>
         </div>
     </div>
 
-    <!-- Charts & History Split -->
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; padding: 0 2rem;">
+    <!-- Main Content Split -->
+    <div class="keka-split-view">
 
-        <!-- Chart -->
-        <div class="dashboard-card">
-            <h5 style="margin-bottom: 1.5rem;">{% trans "Balance Overview" %}</h5>
-            <div style="height: 300px;">
+        <!-- Chart Section -->
+        <div class="keka-card">
+            <div class="keka-section-header">
+                <h5 class="keka-section-title">{% trans "Leave Balance Overview" %}</h5>
+            </div>
+            <div class="chart-container-wrapper">
                 <canvas id="leaveBalanceChart"></canvas>
+            </div>
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+                {% trans "Visual representation of your remaining balances." %}
             </div>
         </div>
 
-        <!-- Recent History -->
-        <div class="dashboard-card">
-            <h5 style="margin-bottom: 1.5rem;">{% trans "Recent Requests" %}</h5>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
+        <!-- Recent History Section -->
+        <div class="keka-card">
+            <div class="keka-section-header">
+                <h5 class="keka-section-title">{% trans "Recent Leave Requests" %}</h5>
+                <a href="#" style="font-size: 13px; color: var(--primary); text-decoration: none;">{% trans "View All"
+                    %}</a>
+            </div>
+
+            <div class="keka-table-wrapper">
+                <table class="keka-table">
                     <thead>
-                        <tr style="text-align: left; border-bottom: 1px solid var(--color-border);">
-                            <th style="padding: 10px;">{% trans "Type" %}</th>
-                            <th style="padding: 10px;">{% trans "Date" %}</th>
-                            <th style="padding: 10px;">{% trans "Days" %}</th>
-                            <th style="padding: 10px;">{% trans "Status" %}</th>
-                            <th style="padding: 10px;">{% trans "Action" %}</th>
+                        <tr>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Days" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Action" %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for req in recent_requests %}
-                        <tr style="border-bottom: 1px solid var(--color-surface-hover);">
-                            <td style="padding: 12px 10px;">
-                                <span class="badge" style="background: var(--color-surface); padding: 5px 10px;">{{
-                                    req.get_leave_type_display }}</span>
+                        <tr>
+                            <td>
+                                <strong>{{ req.get_leave_type_display }}</strong>
                             </td>
-                            <td style="padding: 12px 10px;">{{ req.start_date|date:"M d" }} - {{ req.end_date|date:"M d,
-                                Y" }}</td>
-                            <td style="padding: 12px 10px;">{{ req.requested_days }}</td>
-                            <td style="padding: 12px 10px;">
+                            <td>
+                                {{ req.start_date|date:"M d" }}
+                                <span style="color: #999;">-</span>
+                                {{ req.end_date|date:"M d, Y" }}
+                            </td>
+                            <td>{{ req.requested_days }}</td>
+                            <td>
                                 {% if req.status == 'approved' %}
-                                <span style="color: #2ecc71;"><i class="ion-checkmark-circled"></i> {% trans "Approved"
-                                    %}</span>
+                                <span class="keka-badge badge-approved">
+                                    <i class="ion-checkmark-circled"></i> {% trans "Approved" %}
+                                </span>
                                 {% elif req.status == 'rejected' %}
-                                <span style="color: #e74c3c;"><i class="ion-close-circled"></i> {% trans "Rejected"
-                                    %}</span>
-                                {% elif req.status == 'pending' %}
-                                <span style="color: #f1c40f;"><i class="ion-clock"></i> {% trans "Pending" %}</span>
+                                <span class="keka-badge badge-rejected">
+                                    <i class="ion-close-circled"></i> {% trans "Rejected" %}
+                                </span>
                                 {% else %}
-                                <span style="opacity: 0.7;">{{ req.get_status_display }}</span>
+                                <span class="keka-badge badge-pending">
+                                    <i class="ion-clock"></i> {% trans "Pending" %}
+                                </span>
                                 {% endif %}
                             </td>
-                            <td style="padding: 12px 10px;">
+                            <td>
                                 {% if req.status == 'pending' %}
-                                <button class="button"
-                                    style="background: transparent; border: 1px solid #e74c3c; color: #e74c3c; padding: 2px 10px; border-radius: 4px; font-size: 0.8em;"
+                                <button class="keka-btn keka-btn-outline"
+                                    style="padding: 4px 10px; font-size: 12px; border-color: #e74c3c; color: #e74c3c;"
                                     hx-post="{% url 'cancel-leave-api' req.id %}"
-                                    hx-confirm="{% trans 'Are you sure?' %}">
+                                    hx-confirm="{% trans 'Are you sure you want to cancel this request?' %}">
                                     {% trans "Cancel" %}
                                 </button>
                                 {% endif %}
@@ -152,88 +129,62 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" style="padding: 20px; text-align: center; opacity: 0.5;">{% trans "No recent
-                                requests." %}</td>
+                            <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                                <i class="ion-filing" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                {% trans "No recent leave requests found." %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // --- 1. Real-time Clock ---
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('realTimeClock').textContent = timeString;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // --- 2. Theme Toggle ---
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const root = document.documentElement;
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        if (savedTheme === 'light') {
-            root.setAttribute('data-theme', 'light');
-            themeIcon.classList.remove('ion-ios-sunny-outline');
-            themeIcon.classList.add('ion-ios-moon-outline');
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = root.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                root.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.classList.remove('ion-ios-moon-outline');
-                themeIcon.classList.add('ion-ios-sunny-outline');
-            } else {
-                root.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                themeIcon.classList.remove('ion-ios-sunny-outline');
-                themeIcon.classList.add('ion-ios-moon-outline');
-            }
-        });
-
-        // --- 3. Chart ---
         var ctx = document.getElementById('leaveBalanceChart').getContext('2d');
 
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Casual', 'Sick', 'Earned'],
-                datasets: [{
-                    data: [
-                        {{ cl_balance.available |default: 0 }},
-                {{ sl_balance.available |default: 0 }},
-                        {{ el_balance.available |default: 0 }}
-                    ],
-        backgroundColor: ['#667eea', '#FFB75E', '#11998e'],
-        borderWidth: 0
-                }]
-            },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-            position: 'bottom',
-            labels: {
-                fontColor: '#ccc',
-                usePointStyle: true,
-                padding: 20
-            }
+        // Data from server
+        var cl = {{ cl_balance.available }
+    };
+    var sl = {{ sl_balance.available }};
+    var el = {{ el_balance.available }};
+
+    var myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Casual', 'Sick'],
+            datasets: [{
+                data: [cl, sl],
+                backgroundColor: ['#667eea', '#FFB75E'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
         },
-        cutoutPercentage: 70
-    }
-        });
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%', // Thinner ring
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
     });
 </script>
 {% endblock %}

@@ -87,7 +87,7 @@ class PetabytzCompanyManager(models.Manager):
                     queryset = queryset.filter(employee_work_info__company_id=company_id)
                     
             except Exception as e:
-                logger.error(f"Error applying company isolation filter: {e}")
+                logger.error(f"Error applying company isolation filter on {self.model.__name__}: {e}")
 
         # Original duplicate check logic
         try:

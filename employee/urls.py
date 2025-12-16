@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.views.generic import RedirectView
 
 from base.views import object_delete, object_duplicate
-from employee import not_in_out_dashboard, policies, views, views_home
+from employee import not_in_out_dashboard, policies, views, views_home, handbook_policy_views
 from employee.forms import DisciplinaryActionForm
 from employee.models import DisciplinaryAction, Employee, EmployeeTag
 from horilla_documents.models import DocumentRequest
@@ -433,8 +433,12 @@ urlpatterns = [
     path("leaves-dashboard/", views.leaves_dashboard, name="leaves-dashboard"),
     path("attendance-dashboard/", views.attendance_dashboard, name="attendance-dashboard"),
     path("finance-dashboard/", RedirectView.as_view(pattern_name='view-payslips', permanent=True), name="finance-dashboard"),
-    path("handbook-dashboard/", views.handbook_dashboard, name="handbook-dashboard"),
-    path("policy-dashboard/", views.policy_dashboard, name="policy-dashboard"),
+    
+    # Handbook & Policy URLs
+    path("handbook-dashboard/", handbook_policy_views.handbook_dashboard, name="handbook-dashboard"),
+    path("policy-dashboard/", handbook_policy_views.policy_dashboard, name="policy-dashboard"),
+    path("edit-handbook-section/<str:section_type>/", handbook_policy_views.edit_handbook_section, name="edit-handbook-section"),
+    path("edit-policy-section/<str:section_type>/", handbook_policy_views.edit_policy_section, name="edit-policy-section"),
     
     # Leave Management API endpoints
     path("api/leave/apply/", views.apply_leave_api, name="apply-leave-api"),
@@ -444,4 +448,5 @@ urlpatterns = [
     path("api/leave/balance/<str:leave_type>/", views.get_leave_balance_api, name="get-leave-balance-api"),
     path("leave/approvals/", views.manager_leave_requests, name="manager-leave-requests"),
     path("leave/holidays/", views.holiday_calendar, name="holiday-calendar"),
+    path("id-proof/<int:emp_id>/", views.employee_id_proof_view, name="employee-id-proof"),
 ]

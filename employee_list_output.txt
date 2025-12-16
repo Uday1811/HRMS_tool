@@ -1,0 +1,21 @@
+--- Employee Database Dump ---
+Total Count: 16
+
+ID    | Badge ID   | Name                           | Email                         
+--------------------------------------------------------------------------------
+10    | None       | Admin Bluebix                  | admin@bluebix.com             
+9     | None       | Admin Petabytz                 |                               
+11    | None       | Admin Softstandard             | admin@softstandard.com        
+4     | None       | Admin User                     | admin@petabytz.com            
+3     | 3          | Number Three None              | number3@example.com           
+2     | PEP0003    | Pep Three None                 | pep0003@example.com           
+1     | PEP0002    | Pep Two None                   | pep0002@example.com           
+15    | PEP - EMP01 | Sathinath Padhi                | padhi123@gmail.com            
+16    | PEPEMP02   | Sathinath Padhi                | padhi5657@gmail.com           
+13    | PEPEMP01   | Sathinath Padhi                | sathinath.padhi@gmail.com     
+12    | PEP0005    | Sathinath Padhi                | sathinath.padhi@petabytz.com  
+14    | None       | Sathinath Padhi                | sathinathpadhi8@gmail.com     
+6     | BLU0005    | Test Bluebix                   | test.bluebix@bluebix.com      
+8     | SOF0007    | Test Dhaka                     | test.dhaka@softstandard.com   
+7     | SOF0006    | Test India                     | test.india@softstandard.com   
+5     | PET0004    | Test Petabytz                  | test.petabytz@petabytz.com    

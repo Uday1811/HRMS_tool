@@ -1043,7 +1043,7 @@ class WorkRecords(models.Model):
 
 class AttendanceLog(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    action = models.CharField(max_length=4, choices=[('in', 'Clock In'), ('out', 'Clock Out')])
+    action = models.CharField(max_length=10, choices=[('in', 'Clock In'), ('out', 'Clock Out'), ('auto', 'Location Punch')])
     timestamp = models.DateTimeField(auto_now_add=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

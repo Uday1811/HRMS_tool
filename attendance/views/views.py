@@ -206,6 +206,77 @@ def ajax_clock(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
+def auto_clock_log(request):
+    """
+    View to handle automatic periodic location logging (every hour)
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            employee = request.user.employee_get
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
+            
+            if latitude and longitude:
+                AttendanceLog.objects.create(
+                    employee=employee,
+                    action='auto',
+                    latitude=latitude,
+                    longitude=longitude
+                )
+                return JsonResponse({'status': 'success'})
+            else:
+                 return JsonResponse({'status': 'error', 'message': 'Missing coordinates'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'invalid method'}, status=405)
+
+@login_required
+def attendance_map_view(request):
+    """
+    Separate full-page view for attendance map history.
+    """
+    date_str = request.GET.get('date')
+    if date_str:
+        try:
+            view_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            view_date = date.today()
+    else:
+        view_date = date.today()
+
+    target_employee_id = request.GET.get('employee_id')
+    current_employee = request.user.employee_get
+    employee = current_employee
+
+    if target_employee_id and str(current_employee.id) != str(target_employee_id):
+        # Allow if superuser or has view_attendance permission
+        if request.user.has_perm("attendance.view_attendance") or request.user.is_superuser:
+            try:
+                employee = Employee.objects.get(id=target_employee_id)
+            except Employee.DoesNotExist:
+                return HttpResponse("Employee not found", status=404)
+        # Allow if reporting manager
+        elif hasattr(employee, 'employee_work_info') and \
+             Employee.objects.filter(id=target_employee_id, employee_work_info__reporting_manager_id=employee).exists():
+            employee = Employee.objects.get(id=target_employee_id)
+        else:
+             return HttpResponse("Unauthorized", status=403)
+    
+    # Filter logs for the specific date
+    logs = AttendanceLog.objects.filter(
+        employee=employee,
+        timestamp__date=view_date
+    ).exclude(latitude__isnull=True).exclude(longitude__isnull=True).order_by('timestamp')
+    
+    context = {
+        'logs': logs,
+        'date': view_date,
+        'employee': employee
+    }
+    return render(request, "employee/map_view.html", context)
+
+@login_required
 def admin_attendance_dashboard(request):
     context = {}
     return render(request, "attendance/dashboard/dashboard.html", context)

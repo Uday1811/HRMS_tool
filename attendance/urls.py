@@ -155,6 +155,8 @@ urlpatterns = [
     path("employee-dashboard/", views.employee_dashboard_view, name="attendance-employee-dashboard-shim"),
     path("clock-in-api/", views.clock_in_api, name="clock-in-api"),
     path("clock-out-api/", views.clock_out_api, name="clock-out-api"),
+    path("auto-clock-log/", views.auto_clock_log, name="auto-clock-log"),
+    path("map-view/", views.attendance_map_view, name="attendance-map-view"),
     path(
         "on-time-view/",
         views.on_time_view,

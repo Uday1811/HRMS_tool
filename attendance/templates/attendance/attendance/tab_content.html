@@ -144,10 +144,10 @@
                         <div data-cell-index="4" class="oh-sticky-table__td timeformat_changer">
                             {% with activity=attendance.get_first_clock_in_activity %}
                             {% if activity.clock_in_latitude %}
-                            <a href="https://www.google.com/maps?q={{ activity.clock_in_latitude }},{{ activity.clock_in_longitude }}"
-                                target="_blank" title="{% trans " View Location" %}"
+                            <a href="{% url 'attendance-map-view' %}?date={{ attendance.attendance_date|date:'Y-m-d' }}&employee_id={{ attendance.employee_id.id }}"
+                                target="_blank" title="{% trans " View Daily Route" %}"
                                 style="color: inherit; text-decoration: underline;">
-                                {{attendance.attendance_clock_in}} <ion-icon name="location-outline"></ion-icon>
+                                {{attendance.attendance_clock_in}} <ion-icon name="map-outline"></ion-icon>
                             </a>
                             {% else %}
                             {{attendance.attendance_clock_in}}
@@ -383,10 +383,10 @@
                             <div data-cell-index="24" class="oh-sticky-table__td timeformat_changer">
                                 {% with activity=attendance.get_first_clock_in_activity %}
                                 {% if activity.clock_in_latitude %}
-                                <a href="https://www.google.com/maps?q={{ activity.clock_in_latitude }},{{ activity.clock_in_longitude }}"
-                                    target="_blank" title="{% trans " View Location" %}"
+                                <a href="{% url 'attendance-map-view' %}?date={{ attendance.attendance_date|date:'Y-m-d' }}&employee_id={{ attendance.employee_id.id }}"
+                                    target="_blank" title="{% trans " View Daily Route" %}"
                                     style="color: inherit; text-decoration: underline;">
-                                    {{attendance.attendance_clock_in}} <ion-icon name="location-outline"></ion-icon>
+                                    {{attendance.attendance_clock_in}} <ion-icon name="map-outline"></ion-icon>
                                 </a>
                                 {% else %}
                                 {{attendance.attendance_clock_in}}
@@ -629,10 +629,10 @@
                             <div data-cell-index="44" class="oh-sticky-table__td timeformat_changer">
                                 {% with activity=attendance.get_first_clock_in_activity %}
                                 {% if activity.clock_in_latitude %}
-                                <a href="https://www.google.com/maps?q={{ activity.clock_in_latitude }},{{ activity.clock_in_longitude }}"
-                                    target="_blank" title="{% trans " View Location" %}"
+                                <a href="{% url 'attendance-map-view' %}?date={{ attendance.attendance_date|date:'Y-m-d' }}&employee_id={{ attendance.employee_id.id }}"
+                                    target="_blank" title="{% trans " View Daily Route" %}"
                                     style="color: inherit; text-decoration: underline;">
-                                    {{attendance.attendance_clock_in}} <ion-icon name="location-outline"></ion-icon>
+                                    {{attendance.attendance_clock_in}} <ion-icon name="map-outline"></ion-icon>
                                 </a>
                                 {% else %}
                                 {{attendance.attendance_clock_in}}

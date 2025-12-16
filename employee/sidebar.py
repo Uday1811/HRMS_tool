@@ -19,7 +19,7 @@ SUBMENUS = [
         "redirect": reverse("home-page"),
     },
     {
-        "menu": trans("Me"),
+        "menu": trans("My Profile"),
         "redirect": reverse("employee-profile"),
         "accessibility": "employee.sidebar.profile_accessibility",
     },
@@ -43,11 +43,11 @@ SUBMENUS = [
     },
     {
         "menu": trans("Employee Handbook"),
-        "redirect": reverse("organisation-chart"),
+        "redirect": reverse("handbook-dashboard"),
     },
     {
         "menu": trans("Policy"),
-        "redirect": reverse("view-policies"),
+        "redirect": reverse("policy-dashboard"),
     },
 ]
 

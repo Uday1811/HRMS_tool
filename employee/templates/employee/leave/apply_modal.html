@@ -1,0 +1,135 @@
+{% load i18n %}
+<div class="oh-modal__dialog-header"
+    style="background: #ffffff; color: #333; border-bottom: 1px solid #eee; padding: 20px;">
+    <h2 class="oh-modal__dialog-title" style="font-family: 'Inter', sans-serif; font-weight: 600;">
+        {% trans "Apply for Leave" %}
+    </h2>
+    <span class="oh-modal__close--custom" onclick="$('#objectCreateModal').removeClass('oh-modal--show');"
+        style="color: #999;">
+        <i class="ion-close-round"></i>
+    </span>
+</div>
+
+<div class="oh-modal__dialog-body" style="padding: 30px; background: #f9f9f9;">
+    <form id="applyLeaveForm" hx-post="{% url 'apply-leave-api' %}" hx-swap="none"
+        onsubmit="event.preventDefault(); submitLeaveForm(this);">
+        {% csrf_token %}
+
+        <div class="oh-general__group-layout">
+            <!-- Leave Type -->
+            <div class="oh-general__group-layout--section">
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "Leave Type"
+                    %}</label>
+                <select name="leave_type" required class="oh-input custom-select">
+                    <option value="" disabled selected>{% trans "Select Leave Type" %}</option>
+                    <option value="cl">{% trans "Casual Leave" %}</option>
+                    <option value="sl">{% trans "Sick Leave" %}</option>
+                </select>
+            </div>
+
+            <!-- Dates -->
+            <div style="display: flex; gap: 20px;">
+                <div class="oh-general__group-layout--section" style="flex: 1;">
+                    <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "From
+                        Date" %}</label>
+                    <input type="date" name="start_date" required class="oh-input"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="oh-general__group-layout--section" style="flex: 1;">
+                    <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "To Date"
+                        %}</label>
+                    <input type="date" name="end_date" required class="oh-input"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="oh-general__group-layout--section">
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "Duration"
+                    %}</label>
+                <select name="duration" class="oh-input"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="full_day">{% trans "Full Day" %}</option>
+                    <option value="first_half">{% trans "First Half" %}</option>
+                    <option value="second_half">{% trans "Second Half" %}</option>
+                </select>
+            </div>
+
+            <!-- Reason -->
+            <div class="oh-general__group-layout--section">
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "Reason"
+                    %}</label>
+                <textarea name="reason" required class="oh-input" rows="3"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                    placeholder="Reason for leave..."></textarea>
+            </div>
+
+            <!-- Emergency Toggler -->
+            <div class="oh-general__group-layout--section"
+                style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                <input type="checkbox" name="emergency" id="emergencyCheck" value="true">
+                <label for="emergencyCheck" style="color: #e74c3c; font-weight: 500;">{% trans "Is this an emergency
+                    leave?" %}</label>
+            </div>
+
+            <!-- Attachments -->
+            <div class="oh-general__group-layout--section" style="margin-top: 15px;">
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">{% trans "Attachments
+                    (Optional)" %}</label>
+                <input type="file" name="attachments" class="oh-input">
+            </div>
+
+        </div>
+
+        <div style="margin-top: 30px; text-align: right;">
+            <button type="button" class="keka-btn keka-btn-outline"
+                onclick="$('#objectCreateModal').removeClass('oh-modal--show');"
+                style="display: inline-block; margin-right: 10px;">
+                {% trans "Cancel" %}
+            </button>
+            <button type="submit" class="keka-btn keka-btn-primary" style="display: inline-block;">
+                {% trans "Request Leave" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function submitLeaveForm(form) {
+        var formData = new FormData(form);
+
+        fetch("{% url 'apply-leave-api' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    $('#objectCreateModal').removeClass('oh-modal--show');
+                    // Reload page to show new status (or use JS to inject)
+                    window.location.reload();
+                } else {
+                    if (data.requires_confirmation) {
+                        if (confirm(data.message)) {
+                            // User accepted LOP split or force LOP
+                            // We need to send the request again with 'force_lop=true' or similar, 
+                            // But logic allows auto-split now. 
+                            // Wait, my views.py logic automatically splits now.
+                            // So if we are here, it's an error.
+                            alert("Error: " + data.message);
+                        }
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the request.');
+            });
+    }
+</script>

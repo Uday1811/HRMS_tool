@@ -5,48 +5,626 @@
 <!-- Load Premium CSS -->
 <link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}">
 
-<!-- Main Wrapper -->
-<div class="dashboard-page" style="padding: 2rem;">
+<style>
+    :root {
+        /* Keka-inspired Light Theme Palette */
+        --bg-body: #f7f9fa;
+        /* Very light gray background */
+        --bg-card: #ffffff;
+        --border-color: #e1e4e8;
+        --text-primary: #1f2d3d;
+        /* Dark gray for headings */
+        --text-secondary: #5e6e82;
+        /* Muted gray for labels */
+        --accent-blue: #007bff;
+        /* Keka-like primary blue */
+        --accent-blue-light: #e6f2ff;
+        --timeline-line: #d1d9e6;
+        --card-radius: 8px;
+        /* Sharper, professional radius */
+        --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
-    <!-- Profile Header -->
-    <div class="dashboard-header" style="justify-content: flex-start; gap: 2rem;">
-        <img src="{{employee.get_avatar}}" alt="Profile Photo" class="avatar">
-        <div class="info">
-            <h2>{{employee.get_full_name}}</h2>
-            <p>{{employee.job_position_id|default:"N/A"}} – {{employee.employee_work_info.department_id|default:"N/A"}}
-            </p>
-            <p style="opacity: 0.7; font-size: 0.9em;">{{employee.badge_id|default:"Employee ID: N/A"}} |
-                {{employee.employee_work_info.email|default:""}}</p>
+    body {
+        background-color: var(--bg-body) !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .profile-page-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* --- Header Section (Keka Style) --- */
+    .profile-header-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--card-radius);
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        box-shadow: var(--shadow-subtle);
+        position: relative;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+    }
+
+    .profile-avatar {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        /* Rounded square or circle? Keka usually circle */
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-info h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: var(--text-primary);
+    }
+
+    .designation-row {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .designation-row ion-icon {
+        color: var(--accent-blue);
+        font-size: 1.2rem;
+    }
+
+    .meta-row {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .meta-label {
+        font-size: 0.75rem;
+        color: #9daab6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .meta-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* --- Content Grid --- */
+    .profile-content-grid {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 900px) {
+        .profile-content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* --- Sidebar Tabs --- */
+    .vertical-tabs {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--card-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-subtle);
+    }
+
+    .tab-item {
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+    }
+
+    .tab-item:hover {
+        background-color: #f8f9fa;
+        color: var(--text-primary);
+    }
+
+    .tab-item.active {
+        background-color: var(--accent-blue-light);
+        color: var(--accent-blue);
+        border-left-color: var(--accent-blue);
+        font-weight: 600;
+    }
+
+    .tab-item ion-icon {
+        font-size: 1.3rem;
+    }
+
+    /* --- Content Area & Activity Timeline --- */
+    .details-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--card-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-subtle);
+    }
+
+    .section-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    /* Timeline Styles */
+    .keka-timeline {
+        position: relative;
+        padding-left: 2rem;
+        margin-top: 1rem;
+    }
+
+    .keka-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.6rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--timeline-line);
+        border-radius: 2px;
+    }
+
+    .timeline-event {
+        position: relative;
+        padding-bottom: 2.5rem;
+    }
+
+    .timeline-event:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -1.8rem;
+        /* aligned with line */
+        top: 0.2rem;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid var(--accent-blue);
+        z-index: 10;
+        box-shadow: 0 0 0 3px #fff;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 1rem;
+        border: 1px solid #ebebeb;
+    }
+
+    .event-type {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--accent-blue);
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    .event-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.2rem 0;
+    }
+
+    .event-date {
+        font-size: 0.85rem;
+        color: #888;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .event-description {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    /* Tab Animations */
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Info Grids */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .info-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+</style>
+
+<div class="profile-page-wrapper">
+
+    <!-- Header -->
+    <div class="profile-header-card">
+        <div class="profile-avatar-container">
+            <img src="{{employee.get_avatar}}" alt="Profile Photo" class="profile-avatar">
+        </div>
+        <div class="profile-info">
+            <h1>{{employee.get_full_name}}</h1>
+            <div class="designation-row">
+                <ion-icon name="briefcase"></ion-icon>
+                <span>{{employee.job_position_id|default:"No Designation"}}</span>
+            </div>
+
+            <div class="meta-row">
+                <div class="meta-item">
+                    <span class="meta-label">Department</span>
+                    <span class="meta-value">{{employee.employee_work_info.department_id|default:"-"}}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Employee ID</span>
+                    <span class="meta-value">#{{employee.badge_id|default:"-"}}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Work Email</span>
+                    <span class="meta-value">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        {{employee.employee_work_info.email|default:"-"}}
+                    </span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Status</span>
+                    <span class="meta-value"
+                        style="color: {% if employee.is_active %}#28a745{% else %}#dc3545{% endif %};">
+                        {{ employee.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="dashboard-grid">
+    <!-- Main Content -->
+    <div class="profile-content-grid">
 
-        <!-- Basic Details Card -->
-        <div class="dashboard-card">
-            <h3>Basic Personal Details</h3>
-            <p><strong>Date of Birth:</strong> {{employee.dob|date:"F d, Y"|default:"-"}}</p>
-            <p><strong>Gender:</strong> {{employee.gender|default:"-"}}</p>
-            <p><strong>Phone:</strong> {{employee.phone|default:"-"}}</p>
-            <p><strong>Email:</strong> {{employee.email|default:"-"}}</p>
-            <p><strong>Address:</strong> {{employee.address|default:"-"}}</p>
-            <p><strong>Emergency:</strong> {{employee.emergency_contact|default:"-"}}</p>
+        <!-- Sidebar -->
+        <div class="vertical-tabs">
+            <div class="tab-item active" onclick="openTab('about', this)">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>About & Timeline</span>
+            </div>
+            <div class="tab-item" onclick="openTab('job', this)">
+                <ion-icon name="briefcase-outline"></ion-icon>
+                <span>Job Profile</span>
+            </div>
+            <div class="tab-item" onclick="openTab('personal', this)">
+                <ion-icon name="id-card-outline"></ion-icon>
+                <span>Personal Details</span>
+            </div>
+            <div class="tab-item" onclick="openTab('system', this)">
+                <ion-icon name="desktop-outline"></ion-icon>
+                <span>System Info</span>
+            </div>
+            <div class="tab-item" onclick="openTab('idproof', this)">
+                <ion-icon name="finger-print-outline"></ion-icon>
+                <span>ID Proofs</span>
+            </div>
         </div>
 
-        <!-- Work Info Card -->
-        <div class="dashboard-card">
-            <h3>Work Information</h3>
-            <p><strong>Joined:</strong> {{employee.employee_work_info.date_joining|date:"F d, Y"|default:"-"}}</p>
-            <p><strong>Employment Type:</strong> {{employee.employee_work_info.employment_type_id|default:"-"}}</p>
-            <p><strong>Location:</strong> {{employee.employee_work_info.work_type_id|default:"-"}}</p>
-            <p><strong>Shift:</strong> {{employee.employee_work_info.shift_id|default:"-"}}</p>
-            <p><strong>Manager:</strong> {{employee.employee_work_info.reporting_manager_id|default:"-"}}</p>
-            <p><strong>Work Email:</strong> {{employee.employee_work_info.email|default:"-"}}</p>
+        <!-- Content Area -->
+        <div class="tab-content-area">
+
+            <!-- About & Timeline Tab -->
+            <div id="about" class="tab-pane active">
+                <div class="details-card">
+                    <div class="section-title-row">
+                        <ion-icon name="time-outline" style="font-size:1.5rem; color:var(--accent-blue);"></ion-icon>
+                        <h2 class="section-title">Timeline & Info</h2>
+                    </div>
+
+                    {% if employee.about %}
+                    <div style="margin-bottom: 2rem;">
+                        <span class="meta-label">Bio</span>
+                        <p style="margin-top:0.5rem; color:var(--text-primary); line-height:1.6;">{{ employee.about }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="keka-timeline">
+
+                        <!-- Current Job / Joined -->
+                        <div class="timeline-event">
+                            <div class="timeline-dot" style="border-color:#28a745;"></div>
+                            <div class="timeline-content">
+                                <span class="event-type">Joined Company</span>
+                                <h4 class="event-title">Started as {{ employee.job_position_id }}</h4>
+                                <div class="event-date">
+                                    <ion-icon name="calendar-outline"></ion-icon>
+                                    {{ employee.employee_work_info.date_joining|date:"F d, Y"|default:"Date not set" }}
+                                </div>
+                                <div class="event-description">
+                                    Employee joined the organization.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1st WORK ANNIVERSARY check (Simple logic: if joined > 1 year ago) -->
+                        <!-- This is a visual mockup since we can't easily calc in Django template without custom filters. 
+                             We will just show the Birthday next. -->
+
+                        <!-- Current Reporting Manager -->
+                        <div class="timeline-event">
+                            <div class="timeline-dot" style="border-color:#007bff;"></div>
+                            <div class="timeline-content">
+                                <span class="event-type">Current Assignment</span>
+                                <h4 class="event-title">Reporting to Manager</h4>
+                                {% if employee.employee_work_info.reporting_manager_id %}
+                                <div class="event-description">
+                                    You are currently reporting to <strong>{{
+                                        employee.employee_work_info.reporting_manager_id }}</strong>.
+                                </div>
+                                {% else %}
+                                <div class="event-description">No reporting manager assigned yet.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Anniversaries (Mockup Logic for Visuals) -->
+                        {% if employee.employee_work_info.date_joining %}
+                        <div class="timeline-event">
+                            <div class="timeline-dot" style="border-color:#ffc107;"></div>
+                            <div class="timeline-content">
+                                <span class="event-type" style="color:#ffc107;">Milestone</span>
+                                <h4 class="event-title">Work Anniversary</h4>
+                                <div class="event-description">
+                                    Celebrates work anniversary every <strong>{{
+                                        employee.employee_work_info.date_joining|date:"F d" }}</strong>.
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Birthday -->
+                        {% if employee.dob %}
+                        <div class="timeline-event">
+                            <div class="timeline-dot" style="border-color:#e83e8c;"></div>
+                            <div class="timeline-content">
+                                <span class="event-type" style="color:#e83e8c;">Celebration</span>
+                                <h4 class="event-title">Birthday</h4>
+                                <div class="event-description">
+                                    Celebrates birthday on <strong>{{ employee.dob|date:"F d" }}</strong>.
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Profile Tab -->
+            <div id="job" class="tab-pane">
+                <div class="details-card">
+                    <div class="section-title-row">
+                        <ion-icon name="briefcase-outline"
+                            style="font-size:1.5rem; color:var(--accent-blue);"></ion-icon>
+                        <h2 class="section-title">Job Details</h2>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-group">
+                            <span class="info-label">Designation</span>
+                            <span class="info-value">{{employee.job_position_id|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Department</span>
+                            <span class="info-value">{{employee.employee_work_info.department_id|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Reporting To</span>
+                            <span
+                                class="info-value">{{employee.employee_work_info.reporting_manager_id|default:"None"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Work Type</span>
+                            <span class="info-value">{{employee.employee_work_info.work_type_id|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Shift</span>
+                            <span class="info-value">{{employee.employee_work_info.shift_id|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Date of Joining</span>
+                            <span class="info-value">{{ employee.employee_work_info.date_joining|date:"F d,
+                                Y"|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Details Tab -->
+            <div id="personal" class="tab-pane">
+                <div class="details-card">
+                    <div class="section-title-row">
+                        <ion-icon name="id-card-outline" style="font-size:1.5rem; color:var(--accent-blue);"></ion-icon>
+                        <h2 class="section-title">Personal Information</h2>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-group">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">{{employee.get_full_name}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">{{employee.dob|date:"F d, Y"|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Gender</span>
+                            <span class="info-value">{{employee.gender|capfirst|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Marital Status</span>
+                            <span class="info-value">{{employee.marital_status|capfirst|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value">{{employee.phone|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Personal Email</span>
+                            <span class="info-value">{{employee.email|default:"-"}}</span>
+                        </div>
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Current Address</span>
+                            <span class="info-value">{{employee.address|default:"-"}}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Emergency Contact</span>
+                            <span class="info-value">{{employee.emergency_contact|default:"-"}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info Tab -->
+            <div id="system" class="tab-pane">
+                <div class="details-card">
+                    <div class="section-title-row">
+                        <ion-icon name="desktop-outline" style="font-size:1.5rem; color:var(--accent-blue);"></ion-icon>
+                        <h2 class="section-title">System & Account</h2>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-group">
+                            <span class="info-label">User ID</span>
+                            <span class="info-value">{{ user.username }}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Last Login</span>
+                            <span class="info-value">{{ user.last_login|date:"M d, Y h:i A"|default:"Never" }}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Account Created</span>
+                            <span class="info-value">{{ user.date_joined|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ID Proof Tab -->
+            <div id="idproof" class="tab-pane" hx-get="{% url 'employee-id-proof' employee.id %}"
+                hx-trigger="intersect once">
+                <div class="details-card">
+                    <div style="display:flex; justify-content:center; padding: 2rem;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        Getting ID Proofs...
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
 </div>
+
+<script>
+    function openTab(tabName, clickedTab) {
+        // 1. Hide all tabs
+        const allPanes = document.querySelectorAll('.tab-pane');
+        allPanes.forEach(pane => pane.classList.remove('active'));
+
+        // 2. Show selected tab
+        const target = document.getElementById(tabName);
+        if (target) target.classList.add('active');
+
+        // 3. Update tab buttons
+        const allButtons = document.querySelectorAll('.tab-item');
+        allButtons.forEach(btn => btn.classList.remove('active'));
+        if (clickedTab) clickedTab.classList.add('active');
+    }
+</script>
 
 {% endblock content %}

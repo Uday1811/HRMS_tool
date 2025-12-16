@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 {% load i18n %}
 {% load horillafilters %}
 <!DOCTYPE html>
@@ -148,14 +148,7 @@
                         {% endif %}
                     </div>
                     <div class="oh-navbar__systray">
-                        {% if "attendance"|app_installed %}
-                        <!-- Start of check in/out button in nav bar -->
-                        <div id="attendance-activity-container">
-                            {% include "attendance/components/in_out_component.html" %}
-                        </div>
-                        <!-- End of check in/out button in nav bar -->
-                        {% endif %}
-
+                        <!-- Attendance button removed from navbar as per request -->
 
                         {% if request.user|any_permission:'base' or perms.attendance.view_attendancevalidationcondition %}
                         <!-- Start of settings button in nav bar -->
@@ -340,6 +333,57 @@
                 targetEl.classList.add("oh-tabs__content--active");
             }
         }
+    </script>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user|is_clocked_in %}
+    <script>
+        // Automatic Location Logging (Every 1 Hour)
+        function logCurrentLocation() {
+            const userId = "{{ request.user.id }}";
+            const storageKey = `last_location_log_time_${userId}`;
+            const now = Date.now();
+            const lastLog = localStorage.getItem(storageKey);
+            const interval = 3600000; // 1 hour in milliseconds
+
+            // Check if 1 hour has passed since the last log
+            if (lastLog && (now - parseInt(lastLog) < interval)) {
+                return; // Less than 1 hour has passed
+            }
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // Send to backend
+                    fetch("/attendance/auto-clock-log/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify({
+                            latitude: lat,
+                            longitude: lng
+                        })
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log("Location auto-logged.");
+                            localStorage.setItem(storageKey, Date.now().toString());
+                        }
+                    }).catch(err => console.error("Auto-log error:", err));
+
+                }, function (error) {
+                    console.warn("Geolocation denied or error:", error.message);
+                });
+            }
+        }
+
+        // Check immediately on load
+        logCurrentLocation();
+
+        // Check periodically (every minute) if it's time to log again
+        setInterval(logCurrentLocation, 60000);
     </script>
     {% endif %}
 </body>

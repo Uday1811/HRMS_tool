@@ -244,7 +244,7 @@ class WorkType(PetabytzModel):
     work_type = models.CharField(max_length=50, verbose_name=_("Work Type"))
     company_id = models.ManyToManyField(Company, blank=True, verbose_name=_("Company"))
 
-    objects = PetabytzCompanyManager()
+    objects = PetabytzCompanyManager("company_id")
 
     class Meta:
         """
@@ -477,7 +477,7 @@ class EmployeeType(PetabytzModel):
     employee_type = models.CharField(max_length=50)
     company_id = models.ManyToManyField(Company, blank=True, verbose_name=_("Company"))
 
-    objects = PetabytzCompanyManager("employee_id__employee_work_info__company_id")
+    objects = PetabytzCompanyManager("company_id")
 
     class Meta:
         """
@@ -522,7 +522,7 @@ class EmployeeShiftDay(models.Model):
     day = models.CharField(max_length=20, choices=DAY)
     company_id = models.ManyToManyField(Company, blank=True, verbose_name=_("Company"))
 
-    objects = PetabytzCompanyManager()
+    objects = PetabytzCompanyManager("company_id")
 
     class Meta:
         """
@@ -568,7 +568,7 @@ class EmployeeShift(PetabytzModel):
             verbose_name=_("Grace Time"),
         )
 
-    objects = PetabytzCompanyManager("employee_shift__company_id")
+    objects = PetabytzCompanyManager("company_id")
 
     class Meta:
         """
@@ -646,7 +646,7 @@ class EmployeeShiftSchedule(PetabytzModel):
     )
     company_id = models.ManyToManyField(Company, blank=True, verbose_name=_("Company"))
 
-    objects = PetabytzCompanyManager("shift_id__employee_shift__company_id")
+    objects = PetabytzCompanyManager("shift_id__company_id")
 
     class Meta:
         """

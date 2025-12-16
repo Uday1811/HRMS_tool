@@ -20,13 +20,27 @@ class EmployeePayslipForm(forms.ModelForm):
 @login_required
 def view_payslips(request):
     """
-    View for employees to see their own payslips.
+    View for employees to see their own payslips with bank details and financial info.
     Admins can see all payslips.
     """
+    # Get employee object
+    employee = None
+    bank_details = None
+    work_info = None
+    
     if request.user.has_perm('payroll.add_employeepayslip'): # Check if admin/manager
         payslips = EmployeePayslip.objects.all()
     elif hasattr(request.user, 'employee_get'):
-        payslips = EmployeePayslip.objects.filter(employee=request.user.employee_get)
+        employee = request.user.employee_get
+        payslips = EmployeePayslip.objects.filter(employee=employee)
+        
+        # Get bank details
+        if hasattr(employee, 'employee_bank_details'):
+            bank_details = employee.employee_bank_details
+        
+        # Get work information (for UAN, CTC, etc.)
+        if hasattr(employee, 'employee_work_info'):
+            work_info = employee.employee_work_info
     else:
         payslips = EmployeePayslip.objects.none()
 
@@ -34,7 +48,14 @@ def view_payslips(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'payroll/view_payslips.html', {'payslips': page_obj})
+    context = {
+        'payslips': page_obj,
+        'employee': employee,
+        'bank_details': bank_details,
+        'work_info': work_info,
+    }
+
+    return render(request, 'payroll/view_payslips.html', context)
 
 @login_required
 @permission_required('payroll.add_employeepayslip', raise_exception=True) 

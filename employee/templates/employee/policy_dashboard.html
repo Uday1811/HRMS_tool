@@ -1,244 +1,310 @@
 {% extends 'index.html' %}
-{% load i18n static basefilters horillafilters %}
+{% load i18n static %}
 
 {% block content %}
-<!-- Premium CSS -->
-<link rel="stylesheet" href="{% static 'employee/css/dashboard_advanced.css' %}">
+<link rel="stylesheet" href="{% static 'employee/css/keka_handbook.css' %}?v=2.0">
+<style>
+    .section-hidden {
+        display: none !important;
+    }
+</style>
 
-<div class="dashboard-page" style="padding: 2rem;">
+<div class="handbook-container">
 
     <!-- Header -->
-    <div class="dashboard-header"
-        style="justify-content: center; text-align: center; flex-direction: column; margin-bottom: 3rem;">
-        <div class="info">
-            <h2 style="font-size: 2.5em; margin-bottom: 10px;">{% trans "Company Policies" %}</h2>
-            <p style="opacity: 0.7; max-width: 600px; margin: 0 auto;">{% trans "Important policies and terms that
-                govern our workplace." %}</p>
-        </div>
+    <div class="handbook-header">
+        <h1>{% trans "Company Policies" %}</h1>
+        <p>Important policies and terms that govern our workplace. Stay informed about your rights and
+            responsibilities.</p>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="dashboard-tabs"
-        style="display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; flex-wrap: wrap;">
-        <button class="tab-item active" onclick="switchTab(this, 'leavePolicySection')"
-            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.3s;">
-            <ion-icon name="calendar-outline" class="me-2"></ion-icon> {% trans "Leaves" %}
+    <!-- Edit Mode Banner (Only for HR/Admin) -->
+    {% if can_edit %}
+    <div class="edit-mode-banner">
+        <div class="edit-mode-text">
+            <i class="ion-edit"></i>
+            <span>{% trans "You have permission to edit policy sections" %}</span>
+        </div>
+        <button class="btn-save-all" onclick="saveAllSections()">
+            <i class="ion-checkmark-round"></i> {% trans "Save All Changes" %}
         </button>
-        <button class="tab-item" onclick="switchTab(this, 'hrPolicySection')"
-            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
-            <ion-icon name="people-outline" class="me-2"></ion-icon> {% trans "HR Policy" %}
+    </div>
+    {% endif %}
+
+    <!-- Tab Navigation -->
+    <div class="handbook-tabs">
+        <button class="tab-btn active" onclick="switchTab(this, 'leave_policy')" data-section="leave_policy">
+            <i class="ion-calendar"></i>
+            {% trans "Leave Policy" %}
         </button>
-        <button class="tab-item" onclick="switchTab(this, 'attendanceRulesSection')"
-            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
-            <ion-icon name="time-outline" class="me-2"></ion-icon> {% trans "Attendance" %}
+        <button class="tab-btn" onclick="switchTab(this, 'hr_policy')" data-section="hr_policy">
+            <i class="ion-person-stalker"></i>
+            {% trans "HR Policy" %}
         </button>
-        <button class="tab-item" onclick="switchTab(this, 'remoteWorkPolicySection')"
-            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
-            <ion-icon name="home-outline" class="me-2"></ion-icon> {% trans "Remote Work" %}
+        <button class="tab-btn" onclick="switchTab(this, 'attendance_rules')" data-section="attendance_rules">
+            <i class="ion-clock"></i>
+            {% trans "Attendance" %}
         </button>
-        <button class="tab-item" onclick="switchTab(this, 'privacyTermsSection')"
-            style="padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: all 0.3s;">
-            <ion-icon name="shield-outline" class="me-2"></ion-icon> {% trans "Privacy" %}
+        <button class="tab-btn" onclick="switchTab(this, 'remote_work_policy')" data-section="remote_work_policy">
+            <i class="ion-home"></i>
+            {% trans "Remote Work" %}
+        </button>
+        <button class="tab-btn" onclick="switchTab(this, 'privacy_terms')" data-section="privacy_terms">
+            <i class="ion-locked"></i>
+            {% trans "Privacy" %}
         </button>
     </div>
 
-    <!-- Content Area -->
-    <div id="policyContent" style="max-width: 900px; margin: 0 auto;">
+    <!-- Content Sections -->
+    <div id="policyContent">
 
-        <!-- Leave Policy Section -->
-        <div id="leavePolicySection" class="content-section dashboard-card" style="animation: fadeIn 0.5s;">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                <ion-icon name="calendar-outline" class="me-2"></ion-icon>
-                {% trans "Leave Policy" %}
-            </h3>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Annual Leave" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
-                        <li>{% trans "All full-time employees are entitled to 25 days of annual leave per year" %}</li>
-                        <li>{% trans "Part-time employees receive pro-rated leave based on working hours" %}</li>
-                        <li>{% trans "Leave accrues at 2.08 days per month of service" %}</li>
-                        <li>{% trans "Maximum carry-over of 5 days to the following year" %}</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Sick Leave" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6;">
-                        <li>{% trans "12 days of sick leave per calendar year" %}</li>
-                        <li>{% trans "Medical certificate required for absences over 2 consecutive days" %}</li>
-                        <li>{% trans "Unused sick leave does not carry over to the next year" %}</li>
-                        <li>{% trans "Family care leave available for immediate family members" %}</li>
-                    </ul>
-                </div>
+        {% for section in sections %}
+        <div id="{{ section.section_type }}"
+            class="content-section {% if not forloop.first %}section-hidden{% endif %}">
+            <div class="section-header">
+                <h2>
+                    <i class="ion-document-text"></i>
+                    {{ section.title }}
+                </h2>
+                {% if can_edit %}
+                <button class="btn-edit" onclick="toggleEdit('{{ section.section_type }}')">
+                    <i class="ion-edit"></i> {% trans "Edit Section" %}
+                </button>
+                {% endif %}
             </div>
 
-            <div style="margin-top: 1rem;">
-                <h5 style="color: #4facfe; margin-bottom: 1rem;">{% trans "Application Process" %}</h5>
-                <ul style="opacity: 0.8; line-height: 1.6;">
-                    <li>{% trans "Submit leave requests at least 2 weeks in advance" %}</li>
-                    <li>{% trans "Emergency leave can be applied retroactively with proper documentation" %}</li>
-                    <li>{% trans "Manager approval required for all leave requests" %}</li>
-                    <li>{% trans "HR approval required for leave exceeding 5 consecutive days" %}</li>
-                </ul>
+            <!-- Display Mode -->
+            <div class="section-content" id="content-{{ section.section_type }}">
+                {{ section.content|safe }}
             </div>
+
+            <!-- Edit Mode (Only for HR/Admin) -->
+            {% if can_edit %}
+            <div class="content-editor" id="editor-{{ section.section_type }}">
+                <div class="editor-toolbar">
+                    <button class="editor-btn" onclick="insertTag('{{ section.section_type }}', 'h3')">
+                        <i class="ion-ios-text"></i> Heading
+                    </button>
+                    <button class="editor-btn" onclick="insertTag('{{ section.section_type }}', 'ul')">
+                        <i class="ion-ios-list"></i> List
+                    </button>
+                    <button class="editor-btn" onclick="insertTag('{{ section.section_type }}', 'p')">
+                        <i class="ion-ios-paper"></i> Paragraph
+                    </button>
+                    <button class="editor-btn" onclick="insertTag('{{ section.section_type }}', 'strong')">
+                        <i class="ion-ios-bolt"></i> Bold
+                    </button>
+                </div>
+                <textarea class="editor-textarea"
+                    id="textarea-{{ section.section_type }}">{{ section.content }}</textarea>
+                <div class="editor-actions">
+                    <button class="btn-cancel" onclick="cancelEdit('{{ section.section_type }}')">
+                        <i class="ion-close-round"></i> {% trans "Cancel" %}
+                    </button>
+                    <button class="btn-save" onclick="saveSection('{{ section.section_type }}')">
+                        <i class="ion-checkmark-round"></i> {% trans "Save Changes" %}
+                    </button>
+                </div>
+            </div>
+            {% endif %}
         </div>
-
-        <!-- HR Policy Section -->
-        <div id="hrPolicySection" class="content-section dashboard-card" style="display:none; animation: fadeIn 0.5s;">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                <ion-icon name="people-outline" class="me-2"></ion-icon>
-                {% trans "Human Resources Policy" %}
-            </h3>
-
-            <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Equal Opportunity" %}</h5>
-            <p style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
-                {% trans "We are committed to providing equal employment opportunities to all employees and applicants
-                regardless of race, color, religion, gender, sexual orientation, age, national origin, disability, or
-                veteran status." %}
+        {% empty %}
+        <div class="content-section">
+            <p style="text-align: center; color: var(--text-muted);">
+                {% trans "No policy sections available. Please contact HR to set up content." %}
             </p>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Anti-Harassment" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
-                        <li>{% trans "Zero tolerance for harassment, discrimination, or bullying" %}</li>
-                        <li>{% trans "All complaints will be investigated promptly and confidentially" %}</li>
-                        <li>{% trans "Retaliation against complainants is strictly prohibited" %}</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color: #43e97b; margin-bottom: 1rem;">{% trans "Performance" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6;">
-                        <li>{% trans "Annual performance reviews for all employees" %}</li>
-                        <li>{% trans "Quarterly check-ins with direct managers" %}</li>
-                        <li>{% trans "Goal setting and development planning process" %}</li>
-                    </ul>
-                </div>
-            </div>
         </div>
-
-        <!-- Attendance Rules Section -->
-        <div id="attendanceRulesSection" class="content-section dashboard-card"
-            style="display:none; animation: fadeIn 0.5s;">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                <ion-icon name="time-outline" class="me-2"></ion-icon>
-                {% trans "Attendance Rules & Regulations" %}
-            </h3>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Working Hours" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
-                        <li>{% trans "Standard working hours: 9:00 AM - 6:00 PM" %}</li>
-                        <li>{% trans "Core hours: 10:00 AM - 4:00 PM" %}</li>
-                        <li>{% trans "Flexible start time between 8:00 AM - 10:00 AM" %}</li>
-                        <li>{% trans "40 hours per week minimum requirement" %}</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color: #fad0c4; margin-bottom: 1rem;">{% trans "Punctuality" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6;">
-                        <li>{% trans "Grace period of 15 minutes for late arrival" %}</li>
-                        <li>{% trans "3 late arrivals in a month triggers counseling" %}</li>
-                        <li>{% trans "Excessive tardiness may result in disciplinary action" %}</li>
-                        <li>{% trans "Early departure requires manager approval" %}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Remote Work Policy Section -->
-        <div id="remoteWorkPolicySection" class="content-section dashboard-card"
-            style="display:none; animation: fadeIn 0.5s;">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                <ion-icon name="home-outline" class="me-2"></ion-icon>
-                {% trans "Remote Work Policy" %}
-            </h3>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Eligibility" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6; margin-bottom: 2rem;">
-                        <li>{% trans "Employees with at least 6 months of service" %}</li>
-                        <li>{% trans "Satisfactory performance rating in last review" %}</li>
-                        <li>{% trans "Role suitable for remote work" %}</li>
-                        <li>{% trans "Manager approval required" %}</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color: #a18cd1; margin-bottom: 1rem;">{% trans "Guidelines" %}</h5>
-                    <ul style="opacity: 0.8; line-height: 1.6;">
-                        <li>{% trans "Maximum 2 days per week remote work" %}</li>
-                        <li>{% trans "Must maintain same working hours as office days" %}</li>
-                        <li>{% trans "Reliable internet connection required" %}</li>
-                        <li>{% trans "Available for video calls during core hours" %}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Privacy & Terms Section -->
-        <div id="privacyTermsSection" class="content-section dashboard-card"
-            style="display:none; animation: fadeIn 0.5s;">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                <ion-icon name="shield-outline" class="me-2"></ion-icon>
-                {% trans "Privacy Policy & Terms" %}
-            </h3>
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
-                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "Data Privacy" %}</h5>
-                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
-                            <li>{% trans "GDPR compliant" %}</li>
-                            <li>{% trans "Legitimate business purpose only" %}</li>
-                            <li>{% trans "Data retention limits" %}</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
-                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "Confidentiality" %}</h5>
-                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
-                            <li>{% trans "NDA required" %}</li>
-                            <li>{% trans "No unauthorized sharing" %}</li>
-                            <li>{% trans "Trade secrets protection" %}</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; height: 100%;">
-                        <h5 style="color: #ff9f43; margin-bottom: 1rem;">{% trans "IP Rights" %}</h5>
-                        <ul style="opacity: 0.8; font-size: 0.9em; padding-left: 1rem;">
-                            <li>{% trans "Work belongs to company" %}</li>
-                            <li>{% trans "Inventions assigned" %}</li>
-                            <li>{% trans "Disclose conflicts" %}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
 
     </div>
 
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
 <script>
+    // Tab Switching - Scoped to handbook container
     function switchTab(btn, sectionId) {
-        // Hide all sections
-        document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+        console.log('Switching to section:', sectionId);
 
-        // Show selected
-        document.getElementById(sectionId).style.display = 'block';
+        // Get the handbook container
+        const handbookContainer = document.querySelector('.handbook-container');
+        if (!handbookContainer) {
+            console.error('Handbook container not found!');
+            return;
+        }
 
-        // Update buttons
-        document.querySelectorAll('.tab-item').forEach(b => {
-            b.style.background = 'transparent';
+        // Hide all sections within the handbook container only
+        handbookContainer.querySelectorAll('.content-section').forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('section-hidden');
+        });
+
+        // Show selected section by setting display to block
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.style.display = 'block';
+            section.classList.remove('section-hidden');
+            console.log('Showing section:', sectionId);
+        } else {
+            console.error('Section not found:', sectionId);
+        }
+
+        // Update button states within handbook tabs only
+        handbookContainer.querySelectorAll('.tab-btn').forEach(b => {
             b.classList.remove('active');
         });
-        btn.style.background = 'rgba(255,255,255,0.1)';
         btn.classList.add('active');
     }
+
+    // Toggle Edit Mode
+    function toggleEdit(sectionType) {
+        const content = document.getElementById(`content-${sectionType}`);
+        const editor = document.getElementById(`editor-${sectionType}`);
+
+        if (content && editor) {
+            content.style.display = 'none';
+            editor.classList.add('active');
+        }
+    }
+
+    // Cancel Edit
+    function cancelEdit(sectionType) {
+        const content = document.getElementById(`content-${sectionType}`);
+        const editor = document.getElementById(`editor-${sectionType}`);
+
+        if (content && editor) {
+            content.style.display = 'block';
+            editor.classList.remove('active');
+        }
+    }
+
+    // Insert HTML Tag
+    function insertTag(sectionType, tag) {
+        const textarea = document.getElementById(`textarea-${sectionType}`);
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+
+        let insertion = '';
+        if (tag === 'ul') {
+            insertion = `<ul>\n  <li>${selectedText || 'List item'}</li>\n</ul>`;
+        } else if (tag === 'p') {
+            insertion = `<p>${selectedText || 'Paragraph text'}</p>`;
+        } else if (tag === 'strong') {
+            insertion = `<strong>${selectedText || 'Bold text'}</strong>`;
+        }
+
+        textarea.value = textarea.value.substring(0, start) + insertion + textarea.value.substring(end);
+        textarea.focus();
+    }
+
+    // Save Section
+    function saveSection(sectionType) {
+        const textarea = document.getElementById(`textarea-${sectionType}`);
+        if (!textarea) return;
+
+        const content = textarea.value;
+
+        // Show loading
+        document.getElementById('loadingOverlay').classList.add('active');
+
+        // Send AJAX request
+        fetch(`/employee/edit-policy-section/${sectionType}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `content=${encodeURIComponent(content)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+
+                if (data.success) {
+                    // Update display content
+                    document.getElementById(`content-${sectionType}`).innerHTML = content;
+
+                    // Exit edit mode
+                    cancelEdit(sectionType);
+
+                    // Show success message
+                    alert('{% trans "Section saved successfully!" %}');
+                } else {
+                    alert('{% trans "Error saving section. Please try again." %}');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+                console.error('Error:', error);
+                alert('{% trans "An error occurred. Please try again." %}');
+            });
+    }
+
+    // Save All Sections
+    function saveAllSections() {
+        const handbookContainer = document.querySelector('.handbook-container');
+        if (!handbookContainer) return;
+
+        const activeSection = handbookContainer.querySelector('.content-section:not([style*="display: none"])');
+        if (!activeSection) return;
+
+        const sectionType = activeSection.id;
+        const editor = document.getElementById(`editor-${sectionType}`);
+
+        if (editor && editor.classList.contains('active')) {
+            saveSection(sectionType);
+        } else {
+            alert('{% trans "No sections are currently being edited." %}');
+        }
+    }
+
+    // Initialize - Show first section on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Policy page loaded, initializing tabs...');
+
+        // Get the handbook container
+        const handbookContainer = document.querySelector('.handbook-container');
+        if (!handbookContainer) {
+            console.error('Handbook container not found!');
+            return;
+        }
+
+        // Hide all sections first (scoped to handbook container)
+        handbookContainer.querySelectorAll('.content-section').forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('section-hidden');
+        });
+
+        // Show first section
+        const firstTab = handbookContainer.querySelector('.tab-btn');
+        if (firstTab) {
+            const firstSectionId = firstTab.getAttribute('data-section');
+            const firstSection = document.getElementById(firstSectionId);
+            if (firstSection) {
+                firstSection.style.display = 'block';
+                firstSection.classList.remove('section-hidden');
+                console.log('First section shown:', firstSection.id);
+            } else {
+                console.error('First section not found with ID:', firstSectionId);
+            }
+        } else {
+            console.error('No tabs found!');
+        }
+
+        // Log all sections for debugging
+        const allSections = handbookContainer.querySelectorAll('.content-section');
+        console.log('Total sections found:', allSections.length);
+        allSections.forEach(section => {
+            console.log('Section ID:', section.id, 'Display:', section.style.display);
+        });
+    });
 </script>
-{% endblock content %}
+
+{% endblock %}

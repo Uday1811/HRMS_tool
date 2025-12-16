@@ -4,56 +4,30 @@
     {% trans "Selected Employees" %}
   </div>
 
-  <!-- View Tabs -->
-  <div class="employee-view-tabs mb-3">
-    <button class="view-tab-btn active" data-view="list" onclick="switchEmployeeView('list')">
-      <ion-icon name="list-outline"></ion-icon>
-      <span>{% trans "Employee List" %}</span>
-    </button>
-    <button class="view-tab-btn" data-view="hierarchy" onclick="switchEmployeeView('hierarchy')">
-      <ion-icon name="git-network-outline"></ion-icon>
-      <span>{% trans "Team Hierarchy" %}</span>
-    </button>
-  </div>
-
   <!-- Team Hierarchy View -->
-  <div id="hierarchy-view" class="hierarchy-view-container" style="display: none;">
+  <div id="hierarchy-view" class="hierarchy-view-container">
     {% include 'employee_personal_info/team_hierarchy_section.html' %}
   </div>
 
-  <!-- Employee List View -->
-  <div id="view-container">
-
-    {% if error_message %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const errorMessage = '{{ error_message|escapejs }}';
-        const formattedErrorMessage = errorMessage.replace(/,\s*/g, '<br>');
-        const finalErrorMessage = formattedErrorMessage.replace(/-\s*/g, '<span class="material-symbols-outlined me-2" style="font-size: 14px;"">adjust</span>');
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          html: `
-              <div style='text-align:left;'>
-                  <h5 class='mb-2 fw-bold ms-2'>This employee is already related in,</h5>
-                  <p class='ms-2'>${finalErrorMessage}</p>
-              </div>
-              `,
-        });
+  {% if error_message %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const errorMessage = '{{ error_message|escapejs }}';
+      const formattedErrorMessage = errorMessage.replace(/,\s*/g, '<br>');
+      const finalErrorMessage = formattedErrorMessage.replace(/-\s*/g, '<span class="material-symbols-outlined me-2" style="font-size: 14px;"">adjust</span>');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        html: `
+            <div style='text-align:left;'>
+                <h5 class='mb-2 fw-bold ms-2'>This employee is already related in,</h5>
+                <p class='ms-2'>${finalErrorMessage}</p>
+            </div>
+            `,
       });
-    </script>
-    {% endif %}
-
-    {% if data %}
-    {% if view_type == 'list' %}
-    {% include 'employee_personal_info/employee_list.html' %}
-    {% else %}
-    {% include 'employee_personal_info/employee_card.html' %}
-    {% endif %}
-    {% else %}
-    {% include "employee_personal_info/employee_empty_view.html" %}
-    {% endif %}
-  </div>
+    });
+  </script>
+  {% endif %}
 </div>
 <div class="oh-modal" id="sendMailModal" role="dialog" aria-labelledby="sendMailModal" aria-hidden="true">
   <div class="oh-modal__dialog">

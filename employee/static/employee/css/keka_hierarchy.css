@@ -1,0 +1,315 @@
+/* Keka-Style Premium Team Hierarchy CSS */
+
+:root {
+    --keka-bg: #f5f7fa;
+    --keka-card-bg: #ffffff;
+    --keka-primary: #594f8d;
+    /* Deep purple/blue */
+    --keka-secondary: #00d2b4;
+    /* Teal accent */
+    --keka-text: #333333;
+    --keka-subtext: #718096;
+    --keka-border: #e2e8f0;
+    --keka-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --keka-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --line-color: #cbd5e0;
+}
+
+body {
+    background-color: var(--keka-bg) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.team-hierarchy-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-bottom: 5rem;
+}
+
+/* Tree Structure Layout */
+.hierarchy-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    /* Spacing between levels */
+    position: relative;
+    width: 100%;
+}
+
+/* Connectors */
+.connector-line-vertical {
+    width: 2px;
+    background-color: var(--line-color);
+    height: 3rem;
+    margin: 0 auto;
+}
+
+.connector-bridge {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 60%;
+    /* Span width for reportees/peers */
+    border-top: 2px solid var(--line-color);
+    margin-top: -1.5rem;
+    /* Pull up into the vertical gap */
+    height: 1.5rem;
+}
+
+/* Nodes */
+.hierarchy-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+    z-index: 10;
+}
+
+.hierarchy-node.level-manager {
+    animation-delay: 0.1s;
+}
+
+.hierarchy-node.level-you {
+    animation-delay: 0.2s;
+}
+
+.hierarchy-node.level-peers {
+    animation-delay: 0.3s;
+    width: 100%;
+}
+
+.hierarchy-node.level-reportees {
+    animation-delay: 0.4s;
+    width: 100%;
+}
+
+/* Groups (Peers / Reportees) */
+.node-group {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.node-group::before {
+    /* Horizontal connecting line across the top of the group */
+    content: '';
+    position: absolute;
+    top: -2rem;
+    /* Position in the gap above */
+    left: 2rem;
+    right: 2rem;
+    height: 2px;
+    background-color: var(--line-color);
+}
+
+/* Individual Card connecting vertical lines */
+.org-card-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.org-card-wrapper::before {
+    /* Line going up from card to horizontal bus */
+    content: '';
+    position: absolute;
+    top: -2rem;
+    left: 50%;
+    width: 2px;
+    height: 2rem;
+    background-color: var(--line-color);
+    transform: translateX(-50%);
+}
+
+/* Exception for Manager (no top line typically, or handled differently) */
+.hierarchy-node.level-manager .org-card-wrapper::before {
+    display: none;
+}
+
+/* Exception for You (single vertical connect from manager) */
+.hierarchy-node.level-you .org-card-wrapper::before {
+    height: 3rem;
+    top: -3rem;
+}
+
+
+/* CARD STYLING */
+.keka-card {
+    background-color: var(--keka-card-bg);
+    border: 1px solid var(--keka-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: var(--keka-shadow);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.keka-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--keka-hover-shadow);
+    border-color: var(--keka-secondary);
+}
+
+.keka-card.is-you {
+    border: 2px solid var(--keka-primary);
+    background-color: #f8f7ff;
+    /* subtle tint */
+}
+
+.keka-card.is-you .role-badge {
+    background-color: var(--keka-primary);
+    color: white;
+}
+
+/* Profile Image */
+.card-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.status-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.status-dot.online {
+    background-color: #48bb78;
+}
+
+/* Green */
+.status-dot.offline {
+    background-color: #a0aec0;
+}
+
+/* Gray */
+
+/* Text Content */
+.card-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--keka-text);
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.card-role {
+    font-size: 0.9rem;
+    color: var(--keka-subtext);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.role-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background-color: #e2e8f0;
+    color: #4a5568;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Actions */
+.card-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    width: 100%;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.keka-card:hover .card-actions {
+    opacity: 1;
+}
+
+.action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--keka-subtext);
+    transition: all 0.2s;
+    text-decoration: none;
+    border: 1px solid #edf2f7;
+}
+
+.action-icon:hover {
+    background-color: var(--keka-primary);
+    color: white;
+    border-color: var(--keka-primary);
+}
+
+/* Category Labels */
+.level-label {
+    position: absolute;
+    left: -100px;
+    /* Position to the side of the row */
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--keka-subtext);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 1024px) {
+    .level-label {
+        position: static;
+        margin-bottom: 1rem;
+        transform: none;
+    }
+
+    .hierarchy-tree {
+        gap: 2rem;
+    }
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -21,6 +21,8 @@ from employee.models import (
     EmployeeWorkInformation,
     Policy,
     PolicyMultipleFile,
+    HandbookSection,
+    PolicySection,
 )
 
 # Import leave models if they exist
@@ -36,6 +38,7 @@ except ImportError:
 admin.site.register(EmployeeBankDetails)
 admin.site.register([EmployeeNote, EmployeeTag, PolicyMultipleFile, Policy, BonusPoint])
 admin.site.register([DisciplinaryAction, Actiontype])
+admin.site.register([HandbookSection, PolicySection])
 
 
 class EmployeeWorkInformationAdmin(SimpleHistoryAdmin):

@@ -45,6 +45,7 @@ from employee.models import (
     EmployeeNote,
     EmployeeTag,
     EmployeeWorkInformation,
+    EmployeeIDProof,
     NoteFiles,
     Policy,
     PolicyMultipleFile,
@@ -326,7 +327,7 @@ class EmployeeForm(ModelForm):
         """
         badge_id = self.cleaned_data["badge_id"]
         if badge_id:
-            all_employees = Employee.objects.entire()
+            all_employees = Employee.objects.all()
             queryset = all_employees.filter(badge_id=badge_id).exclude(
                 pk=self.instance.pk if self.instance else None
             )
@@ -805,3 +806,16 @@ class EmployeeGeneralSettingPrefixForm(forms.ModelForm):
             "badge_id_prefix": forms.TextInput(attrs={"class": "oh-input w-100"}),
             "company_id": forms.Select(attrs={"class": "oh-select oh-select-2 w-100"}),
         }
+
+
+class EmployeeIDProofForm(ModelForm):
+    class Meta:
+        model = EmployeeIDProof
+        fields = ["aadhar_front", "aadhar_back", "pan_card"]
+        exclude = ["employee", "is_locked"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+             self.fields[field].widget.attrs.update({'class': 'oh-input w-100', 'accept': 'image/*'})
+

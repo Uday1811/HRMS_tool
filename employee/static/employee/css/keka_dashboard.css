@@ -1,0 +1,346 @@
+/* Keka-inspired Advanced Dashboard CSS - Premium Edition */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary: #5d5fb3;
+    /* Keka Purple/Blue */
+    --primary-hover: #4b4da0;
+    --primary-light: #eef0ff;
+    --secondary: #ffb75e;
+    --text-main: #1f2937;
+    --text-body: #4b5563;
+    --text-muted: #9ca3af;
+    --bg-page: #f3f4f6;
+    --white: #ffffff;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --font-sans: 'Inter', sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-page);
+    color: var(--text-body);
+}
+
+.keka-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* --- Premium Header --- */
+.keka-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    background: transparent;
+    /* Cleaner to have no bg on header sometimes, or white */
+}
+
+.keka-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 5px 0;
+    letter-spacing: -0.5px;
+}
+
+.keka-header .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.keka-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* --- Premium Buttons --- */
+.keka-btn {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+}
+
+.keka-btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, #4a4cb8 100%);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(93, 95, 179, 0.25);
+}
+
+.keka-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(93, 95, 179, 0.35);
+}
+
+.keka-btn-outline {
+    background: var(--white);
+    border-color: var(--border-color);
+    color: var(--text-body);
+    box-shadow: var(--shadow-sm);
+}
+
+.keka-btn-outline:hover {
+    background: var(--bg-page);
+    color: var(--text-main);
+    border-color: #d1d5db;
+}
+
+/* --- Premium Cards --- */
+.keka-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.keka-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow-sm);
+    /* Subtle shadow normally */
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.keka-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    border-color: rgba(93, 95, 179, 0.1);
+}
+
+/* Subtle background accent for cards */
+.keka-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: var(--border-color);
+    /* Default gray */
+    opacity: 0.5;
+}
+
+/* Specific card colors */
+.keka-card.card-cl::before {
+    background: #667eea;
+}
+
+.keka-card.card-sl::before {
+    background: #FFB75E;
+}
+
+.keka-card.card-lop::before {
+    background: #FF5F6D;
+}
+
+.keka-card h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    letter-spacing: 0.8px;
+}
+
+.keka-stat-value {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    font-feature-settings: "tnum";
+    /* Tabular numbers */
+}
+
+.keka-stat-meta {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.bg-icon {
+    position: absolute;
+    right: -15px;
+    bottom: -15px;
+    font-size: 100px;
+    opacity: 0.03;
+    /* Very subtle */
+    color: var(--text-main);
+    transform: rotate(-10deg);
+}
+
+/* --- Split View & Charts --- */
+.keka-split-view {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+@media (max-width: 1024px) {
+    .keka-split-view {
+        grid-template-columns: 1fr;
+    }
+}
+
+.keka-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.keka-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+/* --- Premium Table --- */
+.keka-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.keka-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.keka-table th {
+    text-align: left;
+    padding: 16px 20px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    background-color: #f9fafb;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.keka-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-body);
+    vertical-align: middle;
+}
+
+.keka-table tr:last-child td {
+    border-bottom: none;
+}
+
+.keka-table tr:hover td {
+    background-color: #f9fafb;
+}
+
+/* --- Badges --- */
+.keka-badge {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    /* Pill shape */
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+
+.badge-approved {
+    background-color: #dbfdf0;
+    color: #047857;
+}
+
+.badge-pending {
+    background-color: #fefce8;
+    color: #b45309;
+}
+
+.badge-rejected {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+/* --- Modal Improvements --- */
+.oh-modal__dialog {
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 0;
+    overflow: hidden;
+    max-width: 600px;
+    width: 100%;
+}
+
+.oh-modal__dialog-header {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    padding: 24px 30px;
+}
+
+.oh-modal__dialog-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.oh-modal__dialog-body {
+    padding: 30px;
+    background: var(--white);
+}
+
+.oh-input,
+select.oh-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: all 0.2s;
+    background-color: #fff;
+    color: var(--text-main);
+}
+
+.oh-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(93, 95, 179, 0.1);
+}
+
+.oh-general__group-layout--section {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-body);
+    font-size: 14px;
+}

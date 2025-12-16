@@ -1,230 +1,208 @@
 {% load static %}
 {% load i18n %}
 
+<link rel="stylesheet" href="{% static 'employee/css/keka_hierarchy.css' %}">
+
 <div class="team-hierarchy-container">
-    <div class="hierarchy-header">
-        <h1 class="hierarchy-title">
-            <ion-icon name="people-outline"></ion-icon>
-            {% trans "MY TEAMS – PROFILE HIERARCHY" %}
-        </h1>
-        <p class="hierarchy-subtitle">{% trans "Organizational Structure & Team Members" %}</p>
-    </div>
+    <div class="hierarchy-tree">
 
-    <div class="hierarchy-content">
-        <!-- Reporting Manager Section -->
+        <!-- Level 1: Reporting Manager -->
         {% if hierarchy_data.reporting_manager %}
-        <div class="hierarchy-section manager-section">
-            <div class="section-label">
-                <ion-icon name="shield-checkmark-outline"></ion-icon>
-                <span>{% trans "Reporting Manager" %}</span>
-            </div>
-            <div class="profile-cards-container">
-                <div class="profile-card manager-card" data-employee-id="{{ hierarchy_data.reporting_manager.id }}">
-                    <div class="card-background"></div>
-                    <div class="card-content">
-                        <div class="profile-image-wrapper">
-                            {% if hierarchy_data.reporting_manager.employee_profile %}
-                            <img src="{{ hierarchy_data.reporting_manager.get_avatar }}"
-                                alt="{{ hierarchy_data.reporting_manager.get_full_name }}" class="profile-image">
-                            {% else %}
-                            <div class="profile-placeholder">
-                                <ion-icon name="person-outline"></ion-icon>
-                            </div>
-                            {% endif %}
-                            <div class="status-indicator online"></div>
-                        </div>
-                        <div class="profile-info">
-                            <h3 class="profile-name">{{ hierarchy_data.reporting_manager.get_full_name }}</h3>
-                            <p class="profile-position">{{
-                                hierarchy_data.reporting_manager.get_job_position|default:"Manager" }}</p>
-                            <p class="profile-badge">{{ hierarchy_data.reporting_manager.badge_id }}</p>
-                        </div>
-                        <div class="profile-details">
-                            <div class="detail-item">
-                                <ion-icon name="mail-outline"></ion-icon>
-                                <span>{{ hierarchy_data.reporting_manager.get_mail }}</span>
-                            </div>
-                            <div class="detail-item">
-                                <ion-icon name="business-outline"></ion-icon>
-                                <span>{{ hierarchy_data.reporting_manager.get_department|default:"N/A" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'employee-view-individual' hierarchy_data.reporting_manager.id %}"
-                                class="action-btn primary">
-                                <ion-icon name="eye-outline"></ion-icon>
-                                <span>{% trans "View Profile" %}</span>
-                            </a>
-                        </div>
+        <div class="hierarchy-node level-manager">
+            <div class="level-label">{% trans "Reporting To" %}</div>
+            <div class="org-card-wrapper">
+                <div class="keka-card"
+                    onclick="window.location.href='{% url 'employee-view-individual' hierarchy_data.reporting_manager.id %}'">
+                    <span class="role-badge">Manager</span>
+                    <div
+                        class="status-dot {% if hierarchy_data.reporting_manager.check_online %}online{% else %}offline{% endif %}">
+                    </div>
+
+                    {% if hierarchy_data.reporting_manager.employee_profile %}
+                    <img src="{{ hierarchy_data.reporting_manager.get_avatar }}"
+                        alt="{{ hierarchy_data.reporting_manager.get_full_name }}" class="card-avatar">
+                    {% else %}
+                    <div class="card-avatar"
+                        style="background: #e2e8f0; display:flex; align-items:center; justify-content:center;">
+                        <ion-icon name="person" style="font-size:2rem; color:#a0aec0;"></ion-icon>
+                    </div>
+                    {% endif %}
+
+                    <h3 class="card-name">{{ hierarchy_data.reporting_manager.get_full_name }}</h3>
+                    <p class="card-role">{{ hierarchy_data.reporting_manager.get_job_position|default:"Manager" }}</p>
+
+                    <div class="card-actions">
+                        <a href="mailto:{{ hierarchy_data.reporting_manager.get_mail }}" class="action-icon"
+                            title="Email">
+                            <ion-icon name="mail-outline"></ion-icon>
+                        </a>
+                        <a href="tel:{{ hierarchy_data.reporting_manager.phone }}" class="action-icon" title="Call">
+                            <ion-icon name="call-outline"></ion-icon>
+                        </a>
+                        <a href="{% url 'employee-view-individual' hierarchy_data.reporting_manager.id %}"
+                            class="action-icon" title="View Profile">
+                            <ion-icon name="arrow-forward-outline"></ion-icon>
+                        </a>
                     </div>
                 </div>
             </div>
+            <!-- Vertical Line Down to You -->
+            <div class="connector-line-vertical"></div>
         </div>
         {% endif %}
 
-        <!-- Current Employee Section -->
-        <div class="hierarchy-section current-employee-section">
-            <div class="section-label current">
-                <ion-icon name="person-circle-outline"></ion-icon>
-                <span>{% trans "You" %}</span>
-            </div>
-            <div class="profile-cards-container">
-                <div class="profile-card current-card" data-employee-id="{{ hierarchy_data.employee.id }}">
-                    <div class="card-background current-bg"></div>
-                    <div class="card-content">
-                        <div class="profile-image-wrapper">
-                            {% if hierarchy_data.employee.employee_profile %}
-                            <img src="{{ hierarchy_data.employee.get_avatar }}"
-                                alt="{{ hierarchy_data.employee.get_full_name }}" class="profile-image">
-                            {% else %}
-                            <div class="profile-placeholder">
-                                <ion-icon name="person-outline"></ion-icon>
-                            </div>
-                            {% endif %}
-                            <div class="status-indicator online pulse"></div>
-                        </div>
-                        <div class="profile-info">
-                            <h3 class="profile-name">{{ hierarchy_data.employee.get_full_name }}</h3>
-                            <p class="profile-position">{{ hierarchy_data.employee.get_job_position|default:"Employee"
-                                }}</p>
-                            <p class="profile-badge">{{ hierarchy_data.employee.badge_id }}</p>
-                        </div>
-                        <div class="profile-details">
-                            <div class="detail-item">
-                                <ion-icon name="mail-outline"></ion-icon>
-                                <span>{{ hierarchy_data.employee.get_mail }}</span>
-                            </div>
-                            <div class="detail-item">
-                                <ion-icon name="business-outline"></ion-icon>
-                                <span>{{ hierarchy_data.employee.get_department|default:"N/A" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'employee-profile' %}" class="action-btn primary">
-                                <ion-icon name="create-outline"></ion-icon>
-                                <span>{% trans "Edit Profile" %}</span>
-                            </a>
-                        </div>
+        <!-- Level 2: YOU -->
+        <div class="hierarchy-node level-you">
+            <div class="level-label">{% trans "You" %}</div>
+            <div class="org-card-wrapper">
+                <div class="keka-card is-you" onclick="window.location.href='{% url 'employee-profile' %}'">
+                    <span class="role-badge">Me</span>
+                    <div class="status-dot online"></div>
+
+                    {% if hierarchy_data.employee.employee_profile %}
+                    <img src="{{ hierarchy_data.employee.get_avatar }}"
+                        alt="{{ hierarchy_data.employee.get_full_name }}" class="card-avatar">
+                    {% else %}
+                    <div class="card-avatar"
+                        style="background: #e2e8f0; display:flex; align-items:center; justify-content:center;">
+                        <ion-icon name="person" style="font-size:2rem; color:#a0aec0;"></ion-icon>
+                    </div>
+                    {% endif %}
+
+                    <h3 class="card-name">{{ hierarchy_data.employee.get_full_name }}</h3>
+                    <p class="card-role">{{ hierarchy_data.employee.get_job_position|default:"Employee" }}</p>
+
+                    <div class="card-actions">
+                        <a href="mailto:{{ hierarchy_data.employee.get_mail }}" class="action-icon" title="Email">
+                            <ion-icon name="mail-outline"></ion-icon>
+                        </a>
+                        <a href="{% url 'employee-profile' %}" class="action-icon" title="Edit Profile">
+                            <ion-icon name="create-outline"></ion-icon>
+                        </a>
                     </div>
                 </div>
             </div>
+
+            {% if hierarchy_data.peers or hierarchy_data.reportees %}
+            <!-- Vertical Line Down from You to split point if there are sub-levels -->
+            <div class="connector-line-vertical" style="height: 2rem;"></div>
+            {% endif %}
         </div>
 
-        <!-- Peers Section -->
-        {% if hierarchy_data.peers %}
-        <div class="hierarchy-section peers-section">
-            <div class="section-label">
-                <ion-icon name="people-outline"></ion-icon>
-                <span>{% trans "Team Peers" %} ({{ hierarchy_data.peers|length }})</span>
-            </div>
-            <div class="profile-cards-container peers-grid">
-                {% for peer in hierarchy_data.peers %}
-                <div class="profile-card peer-card" data-employee-id="{{ peer.id }}">
-                    <div class="card-background"></div>
-                    <div class="card-content">
-                        <div class="profile-image-wrapper">
+        <!-- Level 3 Container -->
+        {% if hierarchy_data.peers or hierarchy_data.reportees %}
+        <div style="display:flex; gap:4rem; width:100%; justify-content:center; align-items:flex-start;">
+
+            <!-- Peers Branch -->
+            {% if hierarchy_data.peers %}
+            <div class="hierarchy-node level-peers" style="flex:1;">
+                <div class="level-label"
+                    style="top: -1.5rem; left: 50%; transform: translateX(-50%); width:max-content;">{% trans "Team
+                    Peers" %}</div>
+                <!-- Bridge for Peers -->
+                <div class="node-group">
+                    {% for peer in hierarchy_data.peers %}
+                    <div class="org-card-wrapper">
+                        <div class="keka-card"
+                            onclick="window.location.href='{% url 'employee-view-individual' peer.id %}'">
+                            <div class="status-dot {% if peer.check_online %}online{% else %}offline{% endif %}"></div>
+
                             {% if peer.employee_profile %}
-                            <img src="{{ peer.get_avatar }}" alt="{{ peer.get_full_name }}" class="profile-image">
+                            <img src="{{ peer.get_avatar }}" alt="{{ peer.get_full_name }}" class="card-avatar">
                             {% else %}
-                            <div class="profile-placeholder">
-                                <ion-icon name="person-outline"></ion-icon>
+                            <div class="card-avatar"
+                                style="background: #e2e8f0; display:flex; align-items:center; justify-content:center;">
+                                <ion-icon name="person" style="font-size:2rem; color:#a0aec0;"></ion-icon>
                             </div>
                             {% endif %}
-                            {% if peer.check_online %}
-                            <div class="status-indicator online"></div>
-                            {% else %}
-                            <div class="status-indicator offline"></div>
-                            {% endif %}
-                        </div>
-                        <div class="profile-info">
-                            <h3 class="profile-name">{{ peer.get_full_name }}</h3>
-                            <p class="profile-position">{{ peer.get_job_position|default:"Employee" }}</p>
-                            <p class="profile-badge">{{ peer.badge_id }}</p>
-                        </div>
-                        <div class="profile-details">
-                            <div class="detail-item">
-                                <ion-icon name="mail-outline"></ion-icon>
-                                <span>{{ peer.get_mail }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'employee-view-individual' peer.id %}" class="action-btn secondary">
-                                <ion-icon name="eye-outline"></ion-icon>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
 
-        <!-- Direct Reportees Section -->
-        {% if hierarchy_data.reportees %}
-        <div class="hierarchy-section reportees-section">
-            <div class="section-label">
-                <ion-icon name="git-network-outline"></ion-icon>
-                <span>{% trans "Direct Reportees" %} ({{ hierarchy_data.reportees|length }})</span>
-            </div>
-            <div class="profile-cards-container reportees-grid">
-                {% for reportee in hierarchy_data.reportees %}
-                <div class="profile-card reportee-card" data-employee-id="{{ reportee.id }}">
-                    <div class="card-background"></div>
-                    <div class="card-content">
-                        <div class="profile-image-wrapper">
-                            {% if reportee.employee_profile %}
-                            <img src="{{ reportee.get_avatar }}" alt="{{ reportee.get_full_name }}"
-                                class="profile-image">
-                            {% else %}
-                            <div class="profile-placeholder">
-                                <ion-icon name="person-outline"></ion-icon>
+                            <h3 class="card-name">{{ peer.get_full_name }}</h3>
+                            <p class="card-role">{{ peer.get_job_position|default:"Peer" }}</p>
+
+                            <div class="card-actions">
+                                <a href="mailto:{{ peer.get_mail }}" class="action-icon" title="Email">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                </a>
+                                <a href="{% url 'employee-view-individual' peer.id %}" class="action-icon"
+                                    title="View Profile">
+                                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                                </a>
                             </div>
-                            {% endif %}
-                            {% if reportee.check_online %}
-                            <div class="status-indicator online"></div>
-                            {% else %}
-                            <div class="status-indicator offline"></div>
-                            {% endif %}
-                        </div>
-                        <div class="profile-info">
-                            <h3 class="profile-name">{{ reportee.get_full_name }}</h3>
-                            <p class="profile-position">{{ reportee.get_job_position|default:"Employee" }}</p>
-                            <p class="profile-badge">{{ reportee.badge_id }}</p>
-                        </div>
-                        <div class="profile-details">
-                            <div class="detail-item">
-                                <ion-icon name="mail-outline"></ion-icon>
-                                <span>{{ reportee.get_mail }}</span>
-                            </div>
-                            <div class="detail-item">
-                                <ion-icon name="business-outline"></ion-icon>
-                                <span>{{ reportee.get_department|default:"N/A" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'employee-view-individual' reportee.id %}" class="action-btn secondary">
-                                <ion-icon name="eye-outline"></ion-icon>
-                            </a>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
+            {% endif %}
+
+            <!-- Reportees Branch -->
+            {% if hierarchy_data.reportees %}
+            <div class="hierarchy-node level-reportees" style="flex:1;">
+                <div class="level-label"
+                    style="top: -1.5rem; left: 50%; transform: translateX(-50%); width:max-content;">{% trans "Direct
+                    Reports" %}</div>
+                <!-- Bridge for Reportees -->
+                <div class="node-group">
+                    {% for reportee in hierarchy_data.reportees %}
+                    <div class="org-card-wrapper">
+                        <div class="keka-card"
+                            onclick="window.location.href='{% url 'employee-view-individual' reportee.id %}'">
+                            <div class="status-dot {% if reportee.check_online %}online{% else %}offline{% endif %}">
+                            </div>
+
+                            {% if reportee.employee_profile %}
+                            <img src="{{ reportee.get_avatar }}" alt="{{ reportee.get_full_name }}" class="card-avatar">
+                            {% else %}
+                            <div class="card-avatar"
+                                style="background: #e2e8f0; display:flex; align-items:center; justify-content:center;">
+                                <ion-icon name="person" style="font-size:2rem; color:#a0aec0;"></ion-icon>
+                            </div>
+                            {% endif %}
+
+                            <h3 class="card-name">{{ reportee.get_full_name }}</h3>
+                            <p class="card-role">{{ reportee.get_job_position|default:"Reportee" }}</p>
+
+                            <div class="card-actions">
+                                <a href="mailto:{{ reportee.get_mail }}" class="action-icon" title="Email">
+                                    <ion-icon name="mail-outline"></ion-icon>
+                                </a>
+                                <a href="{% url 'employee-view-individual' reportee.id %}" class="action-icon"
+                                    title="View Profile">
+                                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
         </div>
         {% endif %}
 
         <!-- Empty State -->
         {% if not hierarchy_data.reporting_manager and not hierarchy_data.peers and not hierarchy_data.reportees %}
-        <div class="empty-state">
-            <div class="empty-icon">
-                <ion-icon name="people-outline"></ion-icon>
-            </div>
-            <h3>{% trans "No Team Members Found" %}</h3>
-            <p>{% trans "You don't have any team members or reporting structure set up yet." %}</p>
+        <div style="text-align:center; padding: 4rem; width: 100%;">
+            <ion-icon name="git-network-outline"
+                style="font-size: 4rem; color: var(--keka-subtext); opacity:0.5;"></ion-icon>
+            <h3 style="margin-top:1rem; color:var(--keka-text);">{% trans "No Hierarchy Found" %}</h3>
+            <p style="color:var(--keka-subtext);">{% trans "Your position in the organization chart has not been defined
+                yet." %}</p>
         </div>
         {% endif %}
+
     </div>
 </div>
 
-<link rel="stylesheet" href="{% static 'employee/css/team_hierarchy.css' %}">
-<script src="{% static 'employee/js/team_hierarchy.js' %}"></script>
+<script>
+    // Initialize standard interactions via JS
+    document.addEventListener('DOMContentLoaded', function () {
+        const cards = document.querySelectorAll('.keka-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential future animations
+            });
+        });
+    });
+</script>
